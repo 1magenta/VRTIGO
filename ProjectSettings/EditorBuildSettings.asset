@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/StartMenu.unity
+    guid: e18c8ddc0067543eface3a63d038bf11
+  - enabled: 0
+    path: Assets/Scenes/SampleScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/HeadStability.unity
+    guid: cc6cfed9b30f24253aedd6197c17809b
+  - enabled: 1
+    path: Assets/Scenes/TestofNystagmus.unity
+    guid: a911aede3d4c04fdc8e9813115c8b8c5
+  - enabled: 1
+    path: Assets/Scenes/FingerTapping.unity
+    guid: bd47083f2df97497ca12a1575be41b07
+  - enabled: 1
+    path: Assets/Scenes/BucketTestV2.unity
+    guid: 8260ad8ea3eed49c5aa415c15d7c4ac0
+  - enabled: 1
+    path: Assets/Scenes/TestofSkew.unity
+    guid: 2418ab9ac8b5c4696a63114fced13b65
+  - enabled: 1
+    path: Assets/Scenes/FingerTarget.unity
+    guid: 525eb15eb61ce446ca21113d7a99cd00
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 8c1ace982ae2f4371a63c0cd2c72009a,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 6b8d831e9ca084c52a40fbf4cad815b8,
+      type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 50094222b61634adc8460b11ea97495a,
+      type: 2}
