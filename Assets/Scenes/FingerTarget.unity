@@ -4576,6 +4576,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ControllerScreen
       objectReference: {fileID: 0}
+    - target: {fileID: 4287064202991328737, guid: aa429439e1c534911bd81eaf701184f3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8959897019109319048, guid: aa429439e1c534911bd81eaf701184f3,
         type: 3}
       propertyPath: m_Pivot.x
@@ -6546,6 +6551,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: '[BuildingBlock] Camera Rig'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6239647182361782755, guid: fc2e1834af34c1e4582a9ce1705d062f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

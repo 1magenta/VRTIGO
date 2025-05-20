@@ -55,8 +55,13 @@ public class HandednessTouchTest : MonoBehaviour
     private bool initialized = false;         // Game logic initialized after handedness is known
 
 
-    // Trial mechanics
+    // Trial mechanics: To adjust the arm reach quantity (ensure 25 reaches per arm)
     private int trial = 1;
+    private const int FIRST_RECORDED_TRIAL = 11;      // First trial after practice
+    private const int REACHES_PER_ARM = 25;           // Number of reaches for each arm
+    private const int SWITCH_HANDS_TRIAL = FIRST_RECORDED_TRIAL + REACHES_PER_ARM; // Trial 36
+    private const int TOTAL_TRIALS = SWITCH_HANDS_TRIAL + REACHES_PER_ARM - 1;      // Trial 60
+
 
 
     private string handednessFile;
@@ -140,10 +145,21 @@ public class HandednessTouchTest : MonoBehaviour
         rootPath = Path.Combine(rootPath, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
         Directory.CreateDirectory(rootPath);
 
-        // Randomize 5 visible and 5 invisible trials between trial 11–20
+        /*// Randomize 5 visible and 5 invisible trials between trial 11–20
         List<bool> visList = new List<bool>();
         for (int i = 0; i < 5; i++) visList.Add(true);   // 5 visible
-        for (int i = 0; i < 5; i++) visList.Add(false);  // 5 invisible
+        for (int i = 0; i < 5; i++) visList.Add(false);  // 5 invisible*/
+
+        // Randomize visibility trials
+        // Generate visible/invisible trials based on reaches per arm
+        int reachesPerArm = SWITCH_HANDS_TRIAL - FIRST_RECORDED_TRIAL;
+        int visibleTrials = Mathf.CeilToInt(reachesPerArm / 2.0f);  // Half visible (rounded up)
+        int invisibleTrials = reachesPerArm - visibleTrials;        // Half invisible (rounded down)
+
+        List<bool> visList = new List<bool>();
+        for (int i = 0; i < visibleTrials; i++) visList.Add(true);
+        for (int i = 0; i < invisibleTrials; i++) visList.Add(false);
+
         System.Random rng = new System.Random();
         int n = visList.Count;
         while (n > 1)
@@ -260,7 +276,7 @@ public class HandednessTouchTest : MonoBehaviour
         {
             RunPracticeTrials();
         }
-        else if (trial >= 11 && trial <= 30)
+        else if (trial >= FIRST_RECORDED_TRIAL && trial <= TOTAL_TRIALS) //trial >= 11 && trial <= 30
         {
             RunRecordedTrials();
         }
@@ -406,7 +422,7 @@ public class HandednessTouchTest : MonoBehaviour
             instructionText.text = "Touch and hold the ball with your palm";
 
 
-            if (trial >= 11 && trial <= 20)
+            /*if (trial >= 11 && trial <= 20)
             {
                 int visIndex = trial - 11;
                 if (visIndex >= 0 && visIndex < randomizedVisibilityList.Count)
@@ -421,10 +437,25 @@ public class HandednessTouchTest : MonoBehaviour
                 {
                     SetHandVisibility(flippedVisibilityList[visIndex]);
                 }
+            }*/
+
+            // MODIFIED: Adjusted indices to account for 25 trials per hand
+            if (trial >= FIRST_RECORDED_TRIAL && trial < SWITCH_HANDS_TRIAL)
+            {
+                int visIndex = trial - FIRST_RECORDED_TRIAL;
+                if (visIndex >= 0 && visIndex < randomizedVisibilityList.Count)
+                {
+                    SetHandVisibility(randomizedVisibilityList[visIndex]);
+                }
             }
-
-
-
+            else if (trial >= SWITCH_HANDS_TRIAL && trial <= TOTAL_TRIALS)
+            {
+                int visIndex = trial - SWITCH_HANDS_TRIAL;
+                if (visIndex >= 0 && visIndex < flippedVisibilityList.Count)
+                {
+                    SetHandVisibility(flippedVisibilityList[visIndex]);
+                }
+            }
 
 
             //float distToBall = Vector3.Distance(handPos, currentBall.transform.position);
@@ -450,7 +481,8 @@ public class HandednessTouchTest : MonoBehaviour
                 LogResetReturn();  // Only called during trials 11–20
                 cube.SetActive(false);
                 trial++;
-                if (trial == 21 && !flippedHands)
+
+                if (trial == SWITCH_HANDS_TRIAL && !flippedHands)  //original: trial == 21 && !flippedHands
                 {
                     // Flip handedness
                     flippedHands = true;
@@ -474,12 +506,22 @@ public class HandednessTouchTest : MonoBehaviour
 
                     skeleton = activeHand.GetComponent<OVRSkeleton>();
                     instructionText.text = "Now using the opposite hand!";
-                    trialText.GetComponent<TextMeshProUGUI>().text = "Trial 21";
+                    trialText.GetComponent<TextMeshProUGUI>().text = $"Trial {SWITCH_HANDS_TRIAL}";  //"Trial 21"
 
-                    // Generate new visibility list
+                    /*// Generate new visibility list
                     List<bool> visList = new List<bool>();
                     for (int i = 0; i < 5; i++) visList.Add(true);
-                    for (int i = 0; i < 5; i++) visList.Add(false);
+                    for (int i = 0; i < 5; i++) visList.Add(false);*/
+
+                    // Generate new visibility list for second hand
+                    int reachesPerArm = TOTAL_TRIALS - SWITCH_HANDS_TRIAL + 1;
+                    int visibleTrials = Mathf.CeilToInt(reachesPerArm / 2.0f);  // Half visible (rounded up)
+                    int invisibleTrials = reachesPerArm - visibleTrials;        // Half invisible (rounded down)
+
+                    List<bool> visList = new List<bool>();
+                    for (int i = 0; i < visibleTrials; i++) visList.Add(true);
+                    for (int i = 0; i < invisibleTrials; i++) visList.Add(false);
+
                     System.Random rng = new System.Random();
                     int n = visList.Count;
                     while (n > 1)
@@ -500,7 +542,7 @@ public class HandednessTouchTest : MonoBehaviour
 
                 evaluating = false;
 
-                if (trial <= 30)
+                if (trial <= TOTAL_TRIALS)  //trial <= 30
                 {
                     instructionText.text = $"Trial {trial}";
                     trialText.GetComponent<TextMeshProUGUI>().text = $"Trial {trial}";
@@ -534,7 +576,7 @@ public class HandednessTouchTest : MonoBehaviour
         trialError = Vector3.Distance(finalHandPos, targetPos);
 
 
-        if (trial >= 11 && trial <= 30)
+        if (trial >= FIRST_RECORDED_TRIAL && trial <= TOTAL_TRIALS) //trial >= 11 && trial <= 30
         {
             string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
@@ -544,9 +586,14 @@ public class HandednessTouchTest : MonoBehaviour
             Vector3 rightEyeRot = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);
 
 
-            bool isVisible = trial <= 20
+            /*bool isVisible = trial <= 20
                     ? randomizedVisibilityList[trial - 11]
-                    : flippedVisibilityList[trial - 21];
+                    : flippedVisibilityList[trial - 21];*/
+
+            //Adjusted indices for visibility list
+            bool isVisible = trial < SWITCH_HANDS_TRIAL
+                ? randomizedVisibilityList[trial - FIRST_RECORDED_TRIAL]
+                : flippedVisibilityList[trial - SWITCH_HANDS_TRIAL];
 
 
             string phaseName = isVisible ? "Visible" : "Invisible";
@@ -584,7 +631,8 @@ public class HandednessTouchTest : MonoBehaviour
 
     private void LogResetReturn()
     {
-        if (trial < 11 || trial > 30) return;  // Only log resets during recorded trials
+        //if (trial < 11 || trial > 30) return;  // Only log resets during recorded trials
+        if (trial < FIRST_RECORDED_TRIAL || trial > TOTAL_TRIALS) return;
 
         string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
