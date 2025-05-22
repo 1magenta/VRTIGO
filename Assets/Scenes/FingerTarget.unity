@@ -9845,6 +9845,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1837996084}
   - component: {fileID: 1837996083}
+  - component: {fileID: 1837996085}
+  - component: {fileID: 1837996086}
   m_Layer: 0
   m_Name: SceneCode
   m_TagString: Untagged
@@ -9859,7 +9861,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1837996082}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef8004d2e4044c64b85ab4c523fad772, type: 3}
   m_Name: 
@@ -9868,10 +9870,10 @@ MonoBehaviour:
   leftBall: {fileID: 353870367}
   rightBall: {fileID: 204100092}
   cube: {fileID: 722697150}
-  cubeblue: {fileID: 1342436626}
+  cubeblue: {fileID: 0}
   explosion: {fileID: 896377095423027614, guid: 90afd4a287793494385b35f0b3951fd5,
     type: 3}
-  displayText: {fileID: 387040928}
+  displayText: {fileID: 0}
   trialText: {fileID: 639812016}
   visibilityText: {fileID: 383549505}
   fabLeft: {fileID: 795258906}
@@ -9899,6 +9901,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1837996085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837996082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dac74df990804f4ebfe6dbbe0d8ae54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instructionText: {fileID: 1310289865}
+  leftBall: {fileID: 353870367}
+  rightBall: {fileID: 204100092}
+  cube: {fileID: 722697150}
+  cubeblue: {fileID: 0}
+  explosion: {fileID: 896377095423027614, guid: 90afd4a287793494385b35f0b3951fd5,
+    type: 3}
+  displayText: {fileID: 0}
+  trialText: {fileID: 639812016}
+  visibilityText: {fileID: 383549505}
+  fabLeft: {fileID: 795258906}
+  fabRight: {fileID: 795258905}
+  leftIndexTipJoint: {fileID: 1171624275}
+  rightIndexTipJoint: {fileID: 1419572402}
+  LeftEyeGaze: {fileID: 653878074}
+  RightEyeGaze: {fileID: 1885810008}
+  startMenu: {fileID: 747587835}
+  leftHand: {fileID: 225391845}
+  rightHand: {fileID: 2135074268}
+  handedness: 
+  sphereSpawnPrefab: {fileID: 3987254101152998722, guid: 2a0f9dc04ee5ebd42a06223beee958fc,
+    type: 3}
+--- !u!114 &1837996086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837996082}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56993c855da2c464282228e70438ef01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  indexTipJoint: {fileID: 1171624275}
+  debugSphere: {fileID: 0}
+  autoFindJoint: 1
+  testLeftHand: 1
 --- !u!1 &1840651915
 GameObject:
   m_ObjectHideFlags: 0
