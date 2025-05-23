@@ -9929,6 +9929,15 @@ MonoBehaviour:
   rightIndexTipJoint: {fileID: 1419572402}
   showFingertipDebug: 1
   fingertipDebugSphere: {fileID: 0}
+  showShoulderDebug: 1
+  shoulderDebugSphere: {fileID: 0}
+  hitDetectionRadius: 0.03
+  enableTrajectoryLogging: 1
+  trajectoryLogRate: 30
+  targetDistanceMultiplier: 1
+  targetDistanceOffset: 0
+  shoulderDropFromHead: 0.25
+  shoulderLateralOffset: 0.18
   LeftEyeGaze: {fileID: 653878074}
   RightEyeGaze: {fileID: 1885810008}
   startMenu: {fileID: 747587835}
