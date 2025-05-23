@@ -9923,10 +9923,12 @@ MonoBehaviour:
   displayText: {fileID: 0}
   trialText: {fileID: 639812016}
   visibilityText: {fileID: 383549505}
-  fabLeft: {fileID: 795258906}
-  fabRight: {fileID: 795258905}
+  fabLeft: {fileID: 1712458479}
+  fabRight: {fileID: 1438366346}
   leftIndexTipJoint: {fileID: 1171624275}
   rightIndexTipJoint: {fileID: 1419572402}
+  showFingertipDebug: 1
+  fingertipDebugSphere: {fileID: 0}
   LeftEyeGaze: {fileID: 653878074}
   RightEyeGaze: {fileID: 1885810008}
   startMenu: {fileID: 747587835}
