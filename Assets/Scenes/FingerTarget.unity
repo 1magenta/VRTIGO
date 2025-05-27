@@ -9927,9 +9927,9 @@ MonoBehaviour:
   fabRight: {fileID: 1438366346}
   leftIndexTipJoint: {fileID: 1171624275}
   rightIndexTipJoint: {fileID: 1419572402}
-  showFingertipDebug: 1
+  showFingertipDebug: 0
   fingertipDebugSphere: {fileID: 0}
-  showShoulderDebug: 1
+  showShoulderDebug: 0
   shoulderDebugSphere: {fileID: 0}
   hitDetectionRadius: 0.03
   enableTrajectoryLogging: 1

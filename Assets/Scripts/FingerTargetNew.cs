@@ -19,40 +19,16 @@ public class FingerTargetNew : MonoBehaviour
     public GameObject displayText;            // Parent container for text
     public GameObject trialText;              // Text showing current trial #
     public GameObject visibilityText;         // Text showing hand visibility
+    public StartSystem startMenu;             // Controls recording and playerName
+    public GameObject sphereSpawnPrefab;
+
     public GameObject fabLeft;                // Left hand prefab
     public GameObject fabRight;               // Right hand prefab
-
-    [Header("Fingertip Tracking")]
-    public Transform leftIndexTipJoint;     
-    public Transform rightIndexTipJoint;     
-    public bool showFingertipDebug = true;   // Toggle to show fingertip debug sphere
-    public GameObject fingertipDebugSphere;  // Debug sphere (Keep it empty for auto-creation)
-
-    [Header("Debug Visualization")]
-    public bool showShoulderDebug = true;    // Toggle to show shoulder position debug sphere
-    public GameObject shoulderDebugSphere;   // Debug sphere for shoulder position (Keep it empty for auto-creation)
-
-    [Header("Hit Detection")]
-    public float hitDetectionRadius = 0.03f; // Distance required to "hit" the target
-
-    [Header("Trajectory Logging")]
-    public bool enableTrajectoryLogging = true;  // Toggle trajectory logging
-    public float trajectoryLogRate = 30f;        // Hz - how often to log trajectory
-
-    [Header("Target Distance Settings")]
-    [Range(0.9f, 1.0f)]
-    public float targetDistanceMultiplier = 1f; // Multiplier for target distance (full reach by default)
-    [Range(0f, 0.1f)]
-    public float targetDistanceOffset = 0f;        // Additional offset to subtract (no offset by default)
-
-    [Header("Calibration Settings")]
-    public float shoulderDropFromHead = 0.25f;   
-    public float shoulderLateralOffset = 0.18f;    // How far to the side is shoulder
 
     public OVREyeGaze LeftEyeGaze;
     public OVREyeGaze RightEyeGaze;
 
-    public StartSystem startMenu;             // Controls recording and playerName
+    
 
     // OVR References
     public OVRHand leftHand;
@@ -62,6 +38,32 @@ public class FingerTargetNew : MonoBehaviour
     private GameObject activeFab;
     private Transform centerEyeAnchor;
     private Transform activeIndexTip;         // Current active fingertip joint
+
+    [Header("Fingertip Tracking")]
+    public Transform leftIndexTipJoint;
+    public Transform rightIndexTipJoint;
+    public bool showFingertipDebug = false;   // Toggle to show fingertip debug sphere
+    private GameObject fingertipDebugSphere;  // Debug sphere (auto-creation)
+
+    [Header("Shoulder Offset")]
+    public bool showShoulderDebug = false;    // Toggle to show shoulder position debug sphere
+    private GameObject shoulderDebugSphere;   // Debug sphere for shoulder position (auto-creation)
+    public float shoulderDropFromHead = 0.25f;
+    public float shoulderLateralOffset = 0.18f;    // How far to the side is shoulder
+
+    [Header("Hit Detection")]
+    public float hitDetectionRadius = 0.03f; // Distance required to "hit" the target
+
+    [Header("Target Distance Settings")]
+    [Range(0.9f, 1.0f)]
+    public float targetDistanceMultiplier = 1f; // Multiplier for target distance (full reach by default)
+    [Range(0f, 0.1f)]
+    public float targetDistanceOffset = 0f;        // Additional offset to subtract (no offset by default)
+
+
+    [Header("Trajectory Logging")]
+    public float trajectoryLogRate = 30f;        // Hz - how often to log trajectory
+    private bool enableTrajectoryLogging = true;  // Toggle trajectory logging
 
     // State variables
     public string handedness = "";
@@ -96,8 +98,6 @@ public class FingerTargetNew : MonoBehaviour
     private bool evaluating = false;
     private GameObject currentBall;
     private float trialError = 0f;
-
-    public GameObject sphereSpawnPrefab;
 
     private float resetCooldownDuration = 2f; // duration in seconds
     private float resetCooldownEndTime = 0f;
