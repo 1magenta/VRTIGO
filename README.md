@@ -128,7 +128,6 @@ private const int TOTAL_TRIALS = 60;              // Total trial count
 **Solution:**
 - Implemented 3D spherical hit detection
 - Configurable detection radius
-- Accurate spatial hit registration
 
 **Inspector Settings:**
 | Setting | Description | Default |
@@ -144,9 +143,10 @@ private const int TOTAL_TRIALS = 60;              // Total trial count
 **Solution:** Fixed recentering in `RecenterOVR.cs`
 
 **Important Warnings:**
-- Recentering breaks Meta Quest Pro's spatial tracking, it may conflict with the build-in recenter, using both methods may lead to incorrect result, avoid force to recenter if user already / familiar with using Meta's build-in recenter.  
+- Recentering breaks Meta Quest Pro's spatial tracking, it may conflict with the build-in recenter, using both methods may lead to incorrect result. 
+- **Avoid force to recenter if user already / familiar with using Meta's build-in recenter.**  
 - Each recenter creates a new data logging folder
-- **Try to avoid using during the FingerTarget task if the recording starts to keep the data log well organized**
+- Try to avoid using during the FingerTarget task if the recording starts to keep the data log well organized
 
 ---
 
