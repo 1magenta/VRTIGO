@@ -3,8 +3,8 @@ using UnityEngine;
 public class FingerTipDebug : MonoBehaviour
 {
     [Header("Direct Joint Reference")]
-    public Transform indexTipJoint;  // Drag XRHand_IndexTip (Transform) here
-    public GameObject debugSphere;   // Optional debug sphere
+    public Transform indexTipJoint;  
+    public GameObject debugSphere;
 
     [Header("Auto-Find Settings")]
     public bool autoFindJoint = true;
@@ -18,14 +18,13 @@ public class FingerTipDebug : MonoBehaviour
             FindIndexTipJoint();
         }
 
-        // Create debug sphere if not provided
+        // Create debug sphere
         if (debugSphere == null)
         {
             debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             debugSphere.name = "DirectFingertipSphere";
             debugSphere.transform.localScale = Vector3.one * 0.015f; // 1.5cm sphere
-
-            // Make it bright green
+            
             Renderer renderer = debugSphere.GetComponent<Renderer>();
             Material mat = new Material(Shader.Find("Standard"));
             mat.color = Color.green;
@@ -54,7 +53,6 @@ public class FingerTipDebug : MonoBehaviour
     {
         if (indexTipJoint != null && debugSphere != null)
         {
-            // Simply use the joint's world position directly
             debugSphere.transform.position = indexTipJoint.position;
             debugSphere.SetActive(true);
 
@@ -100,7 +98,7 @@ public class FingerTipDebug : MonoBehaviour
         }
     }
 
-    // Get the current fingertip position (for use by other scripts)
+    // Get the current fingertip position
     public Vector3 GetFingertipPosition()
     {
         if (indexTipJoint != null)

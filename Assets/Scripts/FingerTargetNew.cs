@@ -321,7 +321,7 @@ public class FingerTargetNew : MonoBehaviour
                 trialText.GetComponent<TextMeshProUGUI>().text = "Trial 2";
                 phase = Phase.Reach;
                 waitingForCubeAfterCalibration = false;
-                instructionText.text = "Touch and hold the ball with your fingertip";
+                instructionText.text = "Touch the center of the ball with the tip of your finger";
                 ShowRandomBall();
             }
             return; // Stop running trials while waiting
@@ -386,7 +386,7 @@ public class FingerTargetNew : MonoBehaviour
 
         if (phase == Phase.Reach)
         {
-            instructionText.text = "Touch and hold the ball with your fingertip";
+            instructionText.text = "Touch the center of the ball with the tip of your finger";
             currentMovementPhase = "Reaching";
             isLoggingTrajectory = true;
 
@@ -451,7 +451,7 @@ public class FingerTargetNew : MonoBehaviour
 
         if (phase == Phase.Reach)
         {
-            instructionText.text = "Touch and hold the ball with your fingertip";
+            instructionText.text = "Touch the center of the ball with the tip of your finger";
             currentMovementPhase = "Reaching";
             isLoggingTrajectory = true;
 

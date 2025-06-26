@@ -46,8 +46,8 @@ public class DisplayRotation : MonoBehaviour
         {
             Debug.LogError("OVRCameraRig not found in the scene!");
         }
-        // Initialize file paths only once
 
+        // Initialize file paths only once
         if (startMenu.recording)
         {
             // Use Application.persistentDataPath to ensure cross-platform compatibility
@@ -74,14 +74,15 @@ public class DisplayRotation : MonoBehaviour
 
         }
 
-        if (startMenu.running){
+        if (startMenu.running)
+        {
             MoveBetweenTwoTransforms.enabled = true; 
         }
-        
 
-        // Initialize recording state and set sphere color to red
-        //record = 0;
-        //Sphere.gameObject.GetComponent<Renderer>().material.color = Color.red;
+        // Log initial status
+        Debug.Log($"Recording enabled: {startMenu.recording}");
+        Debug.Log($"Left eye tracking: {(LeftEyeGaze != null ? LeftEyeGaze.EyeTrackingEnabled.ToString() : "null")}");
+        Debug.Log($"Right eye tracking: {(RightEyeGaze != null ? RightEyeGaze.EyeTrackingEnabled.ToString() : "null")}");
     }
 
     // Called once per frame
@@ -113,23 +114,28 @@ public class DisplayRotation : MonoBehaviour
         // }
 
         // Record eye rotation data if recording is active and eye tracking is enabled
-        if (startMenu.recording && LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
+        
+        //if (!LeftEyeGaze.EyeTrackingEnabled)
+        //{
+        //    Debug.LogError("Left eye tracking enabled: " + LeftEyeGaze.EyeTrackingEnabled);
+        //}
+
+        //if (!RightEyeGaze.EyeTrackingEnabled)
+        //{
+        //    Debug.LogError("Right eye tracking enabled: " + RightEyeGaze.EyeTrackingEnabled);
+        //}
+
+
+        if (startMenu.recording) //&& LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
         {
             // Process and display left eye rotation
             Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
             Vector3 leftEyeConverted = ConvertToMinus180To180(leftEyeEuler);
 
-            // LRotationX.text = "Left eye X Rotation: " + leftEyeConverted.x.ToString();
-            // LRotationY.text = "Left eye Y Rotation: " + leftEyeConverted.y.ToString();
-            // LRotationZ.text = "Left eye Z Rotation: " + leftEyeConverted.z.ToString();
-
             // Process and display right eye rotation
             Vector3 rightEyeEuler = RightEyeGaze.transform.rotation.eulerAngles;
             Vector3 rightEyeConverted = ConvertToMinus180To180(rightEyeEuler);
 
-            // RRotationX.text = "Right eye X Rotation: " + rightEyeConverted.x.ToString();
-            // RRotationY.text = "Right eye Y Rotation: " + rightEyeConverted.y.ToString();
-            // RRotationZ.text = "Right eye Z Rotation: " + rightEyeConverted.z.ToString();
 
             // Save left and right eye data to file
             try
@@ -141,7 +147,7 @@ public class DisplayRotation : MonoBehaviour
                 File.AppendAllText(headposfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
                 File.AppendAllText(headrotfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
                 
-                //Debug.Log("Head position written successfully.");
+                Debug.Log("Head position written successfully.");
             }
             catch (Exception ex)
             {
