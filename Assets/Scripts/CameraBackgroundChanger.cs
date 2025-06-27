@@ -100,7 +100,7 @@ public class CameraBackgroundChanger : MonoBehaviour
 
     void RecordTrackingData()
     {
-        if (LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
+        if (startMenu.recording) //&& LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
         {
             Vector3 leftEyeEuler = ConvertToMinus180To180(LeftEyeGaze.transform.rotation.eulerAngles);
             Vector3 rightEyeEuler = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);

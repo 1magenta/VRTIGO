@@ -56,7 +56,7 @@ public class SkewDisplayRotation : MonoBehaviour
     void Update()
     {
         // Record eye rotation data if eye tracking is enabled
-        if (LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled && startMenu.recording)
+        if (startMenu.recording) // && LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
         {
             RecordEyeMovement();
         }

@@ -330,31 +330,39 @@ public class FingerTargetNew : MonoBehaviour
 
     private void RunCalibrationTrial()
     {
-        instructionText.text = "Reach out and pinch your index and thumb fingers";
+        instructionText.text = "Extend your arm fully forward and pinch your fingers";
+
         if (activeHand.GetFingerIsPinching(OVRHand.HandFinger.Index))
         {
-            Vector3 handPos = GetFingertipOrHandPos();
+            Vector3 fingertipPos = GetFingertipOrHandPos();
             Vector3 headPos = centerEyeAnchor.position;
 
-            // Calculate estimated shoulder position
+            // Calculate improved shoulder position
             shoulderPosition = GetEstimatedShoulderPosition(headPos);
 
             // Calculate 3D reach distance from shoulder to fingertip
-            float reachDistance3D = Vector3.Distance(handPos, shoulderPosition);
+            float reachDistance3D = Vector3.Distance(fingertipPos, shoulderPosition);
 
-            if (reachDistance3D >= 0.1f && !calibrationComplete)
+            // Ensure minimum reach distance for valid calibration
+            if (reachDistance3D >= 0.15f && !calibrationComplete)
             {
                 calibratedReachDistance = reachDistance3D;
                 calibratedShoulderOffset = shoulderPosition - headPos;
                 calibrationComplete = true;
                 waitingForCubeAfterCalibration = true;
 
-                instructionText.text = $"Calibration complete! Reach distance: {calibratedReachDistance:F2}m\nNow touch the green cube with your fingertip to start.";
-                Debug.Log($"Calibrated reach distance: {calibratedReachDistance:F2}m from estimated shoulder position");
-                Debug.Log($"Shoulder position: {shoulderPosition}, Fingertip position: {handPos}");
+                instructionText.text = $"Calibration complete! Reach distance: {calibratedReachDistance:F2}m\nNow touch the cube at your nose to start.";
 
+                Debug.Log($"Calibrated reach distance: {calibratedReachDistance:F2}m");
+                Debug.Log($"Shoulder position: {shoulderPosition}, Fingertip position: {fingertipPos}");
+
+                // Position the cube at nose level
                 PositionResetCube();
-                cube.SetActive(true); // Show the cube
+                cube.SetActive(true);
+            }
+            else if (reachDistance3D < 0.15f)
+            {
+                instructionText.text = "Please extend your arm further forward and pinch";
             }
         }
     }
@@ -810,44 +818,76 @@ public class FingerTargetNew : MonoBehaviour
 
     private GameObject SpawnRandomSphere()
     {
-        // Update shoulder position for current head position
+        if (currentBall != null)
+        {
+            Destroy(currentBall);
+        }
+
+        // Get current positions
         Vector3 currentHeadPos = centerEyeAnchor.position;
-        shoulderPosition = GetEstimatedShoulderPosition(currentHeadPos);
+        Vector3 currentShoulderPos = GetEstimatedShoulderPosition(currentHeadPos);
 
-        // Get forward direction from shoulder to where user is looking
-        Vector3 gazePoint = currentHeadPos + centerEyeAnchor.forward * calibratedReachDistance;
-        Vector3 reachDirection = (gazePoint - shoulderPosition).normalized;
+        // Calculate the natural arm extension direction
+        Vector3 armReachDirection = GetNaturalArmReachDirection(currentHeadPos, currentShoulderPos);
 
-        // Apply the multiplier and offset to the calibrated distance
-        float targetDistance = (calibratedReachDistance * targetDistanceMultiplier) - targetDistanceOffset;
+        // Use the calibrated reach distance for full extension
+        Vector3 baseSpawnPos = currentShoulderPos + (armReachDirection * calibratedReachDistance);
 
-        // Base spawn position from shoulder along reach direction
-        Vector3 baseSpawnPos = shoulderPosition + (reachDirection * targetDistance);
+        // Add smaller, more reasonable random offsets (±8cm horizontal, ±5cm vertical)
+        Vector3 right = Vector3.Cross(armReachDirection, Vector3.up).normalized;
+        Vector3 up = Vector3.Cross(right, armReachDirection).normalized;
 
-        // Add random offsets perpendicular to the reach direction
-        Vector3 right = Vector3.Cross(reachDirection, Vector3.up).normalized;
-        Vector3 up = Vector3.Cross(right, reachDirection).normalized;
-
-        float xOffset = UnityEngine.Random.Range(-0.2f, 0.2f); // left-right
-        float yOffset = UnityEngine.Random.Range(-0.1f, 0.1f); // up-down
+        float xOffset = UnityEngine.Random.Range(-0.08f, 0.08f); // ±8cm left-right
+        float yOffset = UnityEngine.Random.Range(-0.05f, 0.05f); // ±5cm up-down
 
         Vector3 spawnPos = baseSpawnPos + (right * xOffset) + (up * yOffset);
 
-        // Log spawn details for debugging
-        Debug.Log($"Spawning target at distance {targetDistance:F2}m from shoulder (calibrated: {calibratedReachDistance:F2}m, multiplier: {targetDistanceMultiplier:F2}, offset: {targetDistanceOffset:F2})");
-        Debug.Log($"Shoulder position: {shoulderPosition}, Target position: {spawnPos}");
+        Debug.Log($"Sphere spawned at full reach: {spawnPos}");
+        Debug.Log($"Distance from shoulder: {Vector3.Distance(currentShoulderPos, spawnPos):F2}m");
 
-        // Draw debug line from shoulder to target for a moment
-        if (showShoulderDebug)
-        {
-            Debug.DrawLine(shoulderPosition, spawnPos, Color.magenta, 2f);
-        }
-
-        // Spawn the prefab
+        // Spawn the sphere
         GameObject newSphere = Instantiate(sphereSpawnPrefab, spawnPos, Quaternion.identity);
 
+        // Visual debug line from shoulder to target
+        if (showShoulderDebug)
+        {
+            Debug.DrawLine(currentShoulderPos, spawnPos, Color.cyan, 3f);
+        }
+
         return newSphere;
+
     }
+
+
+    // ==== NATURAL ARM REACH DIRECTION ====
+    private Vector3 GetNaturalArmReachDirection(Vector3 headPos, Vector3 shoulderPos)
+    {
+        // Calculate natural arm extension direction
+        // This combines forward reach with slight outward angle
+
+        Vector3 headForward = centerEyeAnchor.forward;
+        Vector3 shoulderToHead = (headPos - shoulderPos).normalized;
+
+        // Natural arm reach is slightly forward and outward from shoulder
+        Vector3 rightVector = centerEyeAnchor.right;
+
+        // Base direction: mostly forward with slight outward component
+        Vector3 baseDirection = headForward;
+
+        // Add slight outward angle (10 degrees) for natural arm extension
+        float outwardAngle = 10f * Mathf.Deg2Rad;
+        Vector3 outwardOffset = rightVector * Mathf.Sin(outwardAngle);
+
+        if (handedness == "Left")
+        {
+            outwardOffset = -outwardOffset; // Reverse for left hand
+        }
+
+        Vector3 naturalDirection = (baseDirection + outwardOffset).normalized;
+
+        return naturalDirection;
+    }
+
 
     private void SetHandVisibility(bool visible)
     {
@@ -889,17 +929,19 @@ public class FingerTargetNew : MonoBehaviour
 
     private void PositionResetCube()
     {
-        // Position cube based on estimated shoulder position and calibrated reach
-        shoulderPosition = GetEstimatedShoulderPosition(headPosone);
-        Vector3 cubeDirection = (headPosone + forwardone * calibratedReachDistance - shoulderPosition).normalized;
+        // Place cube directly in front of current head position (like touching nose)
+        Vector3 currentHeadPos = centerEyeAnchor.position;
+        Vector3 headForward = centerEyeAnchor.forward;
 
-        float cubeDistance = calibratedReachDistance * 0.7f; // Place cube at 70% of full reach
-        Vector3 cubePos = shoulderPosition + (cubeDirection * cubeDistance);
+        // Distance from head center to nose tip (approximately 8-10cm forward)
+        float noseDistance = 0.09f; // 9cm forward from head center
 
-        // Add slight downward offset
-        cubePos.y -= 0.1f;
+        // Position cube at nose position
+        Vector3 cubePos = currentHeadPos + (headForward * noseDistance);
 
         cube.transform.position = cubePos;
+
+        Debug.Log($"Cube positioned at nose: {cubePos} (Head: {currentHeadPos})");
     }
 
     // Converts euler angle to signed [-180, 180]

@@ -9933,7 +9933,7 @@ MonoBehaviour:
   rightHand: {fileID: 2135074268}
   leftIndexTipJoint: {fileID: 1171624275}
   rightIndexTipJoint: {fileID: 1419572402}
-  showFingertipDebug: 0
+  showFingertipDebug: 1
   showShoulderDebug: 0
   shoulderDropFromHead: 0.25
   shoulderLateralOffset: 0.18
