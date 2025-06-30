@@ -9940,7 +9940,7 @@ MonoBehaviour:
   hitDetectionRadius: 0.03
   targetDistanceMultiplier: 1
   targetDistanceOffset: 0
-  trajectoryLogRate: 30
+  trajectoryLogRate: 50
   handedness: 
 --- !u!1 &1840651915
 GameObject:
