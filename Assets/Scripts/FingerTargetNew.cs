@@ -59,7 +59,8 @@ public class FingerTargetNew : MonoBehaviour
     public float targetDistanceMultiplier = 1f; // Multiplier for target distance (full reach by default)
     [Range(0f, 0.1f)]
     public float targetDistanceOffset = 0f;        // Additional offset to subtract (no offset by default)
-
+    [Range(0.05f, 1.5f)]                                               
+    public float noseDistance = 0.18f; // Distance from head center to nose tip (approximately 8-10cm forward)
 
     [Header("Trajectory Logging")]
     public float trajectoryLogRate = 30f;        // Hz - how often to log trajectory
@@ -932,12 +933,10 @@ public class FingerTargetNew : MonoBehaviour
         // Place cube directly in front of current head position (like touching nose)
         Vector3 currentHeadPos = centerEyeAnchor.position;
         Vector3 headForward = centerEyeAnchor.forward;
-
-        // Distance from head center to nose tip (approximately 8-10cm forward)
-        float noseDistance = 0.09f; // 9cm forward from head center
+        Vector3 headDownward = centerEyeAnchor.up;
 
         // Position cube at nose position
-        Vector3 cubePos = currentHeadPos + (headForward * noseDistance);
+        Vector3 cubePos = currentHeadPos + (headForward * noseDistance) - (headDownward * noseDistance * 0.5f);
 
         cube.transform.position = cubePos;
 

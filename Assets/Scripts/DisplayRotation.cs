@@ -126,7 +126,7 @@ public class DisplayRotation : MonoBehaviour
         //}
 
 
-        if (startMenu.recording) //&& LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
+        if (startMenu.recording && LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
         {
             // Process and display left eye rotation
             Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
