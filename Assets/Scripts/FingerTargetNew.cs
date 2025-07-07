@@ -52,7 +52,9 @@ public class FingerTargetNew : MonoBehaviour
     public float shoulderLateralOffset = 0.18f;    // How far to the side is shoulder
 
     [Header("Hit Detection")]
-    public float hitDetectionRadius = 0.03f; // Distance required to "hit" the target
+    public float hitDetectionRadius = 0.1f; // Distance required to "hit" the target
+    [Range(0.8f, 1.0f)]
+    public float minimumExtensionRatio = 1.0f;
 
     [Header("Target Distance Settings")]
     [Range(0.9f, 1.0f)]
@@ -389,6 +391,34 @@ public class FingerTargetNew : MonoBehaviour
         return shoulderPos;
     }
 
+    private bool CheckHitDetection(Vector3 handPos, Vector3 targetPos)
+    {
+        // Step 1: Check if hand is within the buffer area around target
+        float distanceToTarget = Vector3.Distance(handPos, targetPos);
+        bool withinHitRadius = distanceToTarget <= hitDetectionRadius;
+
+        if (!withinHitRadius)
+        {
+            return false; // Not close enough to target
+        }
+
+        // Step 2: Check if arm is sufficiently extended
+        Vector3 currentShoulderPos = GetEstimatedShoulderPosition(centerEyeAnchor.position);
+        float currentArmExtension = Vector3.Distance(handPos, currentShoulderPos);
+        float requiredExtension = calibratedReachDistance * minimumExtensionRatio;
+
+        bool sufficientExtension = currentArmExtension >= requiredExtension;
+
+        // Step 3: Optional - Check if hand is approaching from the correct direction
+        // This prevents "cheating" by approaching from behind or sides
+        Vector3 shoulderToTarget = (targetPos - currentShoulderPos).normalized;
+        Vector3 shoulderToHand = (handPos - currentShoulderPos).normalized;
+        float directionSimilarity = Vector3.Dot(shoulderToTarget, shoulderToHand);
+        bool correctDirection = directionSimilarity > 0.7f; // 45-degree cone
+        
+        return withinHitRadius && sufficientExtension && correctDirection;
+    }
+
     private void RunPracticeTrials()
     {
         Vector3 handPos = GetFingertipOrHandPos();
@@ -402,8 +432,16 @@ public class FingerTargetNew : MonoBehaviour
             SetHandVisibility(trial < 6);
 
             // Use 3D distance-based hit detection instead of Z-axis crossing
-            float distanceToTarget = Vector3.Distance(handPos, currentBall.transform.position);
-            if (distanceToTarget <= hitDetectionRadius && !evaluating)
+            //float distanceToTarget = Vector3.Distance(handPos, currentBall.transform.position);
+            //if (distanceToTarget <= hitDetectionRadius && !evaluating)
+            //{
+            //    currentMovementPhase = "TargetHit";
+            //    evaluating = true;
+            //    StartCoroutine(EvaluateReachAfterDelay(0.01f));
+            //}
+
+            // Check hit dectection to increase buffer zone and maintain full reach
+            if (CheckHitDetection(handPos, currentBall.transform.position) && !evaluating)
             {
                 currentMovementPhase = "TargetHit";
                 evaluating = true;
@@ -482,13 +520,21 @@ public class FingerTargetNew : MonoBehaviour
                 }
             }
 
-            // Use 3D distance-based hit detection instead of Z-axis crossing
-            float distanceToTarget = Vector3.Distance(handPos, currentBall.transform.position);
-            if (distanceToTarget <= hitDetectionRadius && !evaluating)
+            //// Use 3D distance-based hit detection instead of Z-axis crossing
+            //float distanceToTarget = Vector3.Distance(handPos, currentBall.transform.position);
+            //if (distanceToTarget <= hitDetectionRadius && !evaluating)
+            //{
+            //    currentMovementPhase = "TargetHit";
+            //    evaluating = true;
+            //    StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f)); 
+            //}
+
+            // Check hit dectection to increase buffer zone and maintain full reach
+            if (CheckHitDetection(handPos, currentBall.transform.position) && !evaluating)
             {
                 currentMovementPhase = "TargetHit";
                 evaluating = true;
-                StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f)); 
+                StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f));
             }
         }
         else if (phase == Phase.Reset)
@@ -839,7 +885,7 @@ public class FingerTargetNew : MonoBehaviour
         Vector3 up = Vector3.Cross(right, armReachDirection).normalized;
 
         float xOffset = UnityEngine.Random.Range(-0.08f, 0.08f); // ±8cm left-right
-        float yOffset = UnityEngine.Random.Range(-0.05f, 0.05f); // ±5cm up-down
+        float yOffset = UnityEngine.Random.Range(-0.08f, 0.12f); // up-down
 
         Vector3 spawnPos = baseSpawnPos + (right * xOffset) + (up * yOffset);
 

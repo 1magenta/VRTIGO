@@ -114,16 +114,16 @@ public class DisplayRotation : MonoBehaviour
         // }
 
         // Record eye rotation data if recording is active and eye tracking is enabled
-        
-        //if (!LeftEyeGaze.EyeTrackingEnabled)
-        //{
-        //    Debug.LogError("Left eye tracking enabled: " + LeftEyeGaze.EyeTrackingEnabled);
-        //}
 
-        //if (!RightEyeGaze.EyeTrackingEnabled)
-        //{
-        //    Debug.LogError("Right eye tracking enabled: " + RightEyeGaze.EyeTrackingEnabled);
-        //}
+        if (!LeftEyeGaze.EyeTrackingEnabled)
+        {
+            Debug.LogError("Left eye tracking enabled: " + LeftEyeGaze.EyeTrackingEnabled);
+        }
+
+        if (!RightEyeGaze.EyeTrackingEnabled)
+        {
+            Debug.LogError("Right eye tracking enabled: " + RightEyeGaze.EyeTrackingEnabled);
+        }
 
 
         if (startMenu.recording && LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
