@@ -54,7 +54,7 @@ public class FingerTargetNew : MonoBehaviour
     [Header("Hit Detection")]
     public float hitDetectionRadius = 0.1f; // Distance required to "hit" the target
     [Range(0.8f, 1.0f)]
-    public float minimumExtensionRatio = 1.0f;
+    public float minimumExtensionRatio = 0.9f;
 
     [Header("Target Distance Settings")]
     [Range(0.9f, 1.0f)]
@@ -520,13 +520,13 @@ public class FingerTargetNew : MonoBehaviour
                 }
             }
 
-            //// Use 3D distance-based hit detection instead of Z-axis crossing
+            // Use 3D distance-based hit detection instead of Z-axis crossing
             //float distanceToTarget = Vector3.Distance(handPos, currentBall.transform.position);
             //if (distanceToTarget <= hitDetectionRadius && !evaluating)
             //{
             //    currentMovementPhase = "TargetHit";
             //    evaluating = true;
-            //    StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f)); 
+            //    StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f));
             //}
 
             // Check hit dectection to increase buffer zone and maintain full reach
@@ -885,7 +885,7 @@ public class FingerTargetNew : MonoBehaviour
         Vector3 up = Vector3.Cross(right, armReachDirection).normalized;
 
         float xOffset = UnityEngine.Random.Range(-0.08f, 0.08f); // ±8cm left-right
-        float yOffset = UnityEngine.Random.Range(-0.08f, 0.12f); // up-down
+        float yOffset = UnityEngine.Random.Range(-0.10f, 0.15f); // up-down
 
         Vector3 spawnPos = baseSpawnPos + (right * xOffset) + (up * yOffset);
 

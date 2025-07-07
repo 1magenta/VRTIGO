@@ -9935,9 +9935,10 @@ MonoBehaviour:
   rightIndexTipJoint: {fileID: 1419572402}
   showFingertipDebug: 0
   showShoulderDebug: 0
-  shoulderDropFromHead: 0.25
+  shoulderDropFromHead: 0.2
   shoulderLateralOffset: 0.18
-  hitDetectionRadius: 0.07
+  hitDetectionRadius: 0.1
+  minimumExtensionRatio: 0.9
   targetDistanceMultiplier: 1
   targetDistanceOffset: 0
   noseDistance: 0.16
