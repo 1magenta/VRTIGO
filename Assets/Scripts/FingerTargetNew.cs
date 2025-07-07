@@ -409,14 +409,8 @@ public class FingerTargetNew : MonoBehaviour
 
         bool sufficientExtension = currentArmExtension >= requiredExtension;
 
-        // Step 3: Optional - Check if hand is approaching from the correct direction
-        // This prevents "cheating" by approaching from behind or sides
-        Vector3 shoulderToTarget = (targetPos - currentShoulderPos).normalized;
-        Vector3 shoulderToHand = (handPos - currentShoulderPos).normalized;
-        float directionSimilarity = Vector3.Dot(shoulderToTarget, shoulderToHand);
-        bool correctDirection = directionSimilarity > 0.7f; // 45-degree cone
         
-        return withinHitRadius && sufficientExtension && correctDirection;
+        return withinHitRadius && sufficientExtension;
     }
 
     private void RunPracticeTrials()
