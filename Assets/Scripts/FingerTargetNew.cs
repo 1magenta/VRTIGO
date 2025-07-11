@@ -125,6 +125,9 @@ public class FingerTargetNew : MonoBehaviour
 
     void Start()
     {
+        // Set fixed timestep to achieve desired logging rate
+        Time.fixedDeltaTime = 1f / trajectoryLogRate;
+
         // Get camera rig and hand anchors
         OVRCameraRig rig = FindObjectOfType<OVRCameraRig>();
         if (rig != null)
@@ -229,8 +232,15 @@ public class FingerTargetNew : MonoBehaviour
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        // frame rate and log frequency debug
+        if (Time.frameCount % 60 == 0) // Log every 60 frames
+        {
+            float actualFPS = 1f / Time.deltaTime;
+            Debug.Log($"Actual FPS: {actualFPS:F1}, Target log rate: {trajectoryLogRate}Hz");
+        }
+
         if (!handednessDetected)
         {
             float leftDist = Vector3.Distance(fabLeft.transform.position, leftBall.transform.position);
@@ -765,87 +775,169 @@ public class FingerTargetNew : MonoBehaviour
         }
     }
 
+
     private void LogFingertipTrajectory()
     {
         if (!isLoggingTrajectory || currentBall == null)
             return;
 
-        // Check if enough time has passed since last log (based on log rate)
-        float timeSinceLastLog = Time.time - lastTrajectoryLogTime;
-        float logInterval = 1f / trajectoryLogRate; // Convert Hz to seconds
+        // Ensure right log frequency: log every time this is called in FixedUpdate
+        // FixedUpdate runs at consistent intervals
 
-        if (timeSinceLastLog >= logInterval)
+        Vector3 currentFingertipPos = GetFingertipOrHandPos();
+        Vector3 targetPos = currentBall.transform.position;
+
+        // Calculate movement metrics using FixedUpdate's consistent timing
+        float deltaTime = Time.fixedDeltaTime;
+        Vector3 velocity = (currentFingertipPos - lastFingertipPosition) / deltaTime;
+        float velocityMagnitude = velocity.magnitude;
+        Vector3 movementDirection = velocity.magnitude > 0.001f ? velocity.normalized : Vector3.zero;
+
+        // Get other data...
+        float distanceToTarget = Vector3.Distance(currentFingertipPos, targetPos);
+        bool isVisible = GetCurrentVisibilityState();
+        Vector3 headPos = centerEyeAnchor.position;
+        Vector3 leftEyeRot = ConvertToMinus180To180(LeftEyeGaze.transform.rotation.eulerAngles);
+        Vector3 rightEyeRot = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);
+        float timeFromTrialStart = Time.fixedTime % 60f;
+
+        // Create log entry
+        string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        string trajectoryLog = $"{time}," +
+                             $"Trial {trial}," +
+                             $"{currentMovementPhase}," +
+                             $"{isVisible}," +
+                             $"{handedness}," +
+                             $"FingertipPos({currentFingertipPos.x:F4},{currentFingertipPos.y:F4},{currentFingertipPos.z:F4})," +
+                             $"TargetPos({targetPos.x:F4},{targetPos.y:F4},{targetPos.z:F4})," +
+                             $"DistanceToTarget({distanceToTarget:F4})," +
+                             $"Velocity({velocityMagnitude:F4})," +
+                             $"HeadPos({headPos.x:F4},{headPos.y:F4},{headPos.z:F4})," +
+                             $"LeftEyeRot({leftEyeRot.x:F2},{leftEyeRot.y:F2},{leftEyeRot.z:F2})," +
+                             $"RightEyeRot({rightEyeRot.x:F2},{rightEyeRot.y:F2},{rightEyeRot.z:F2})," +
+                             $"MovementDirection({movementDirection.x:F3},{movementDirection.y:F3},{movementDirection.z:F3})," +
+                             $"TimeFromTrialStart({timeFromTrialStart:F3})\n";
+
+        try
         {
-            Vector3 currentFingertipPos = GetFingertipOrHandPos();
-            Vector3 targetPos = currentBall.transform.position;
-
-            // Calculate movement metrics
-            float distanceToTarget = Vector3.Distance(currentFingertipPos, targetPos);
-            Vector3 velocity = (currentFingertipPos - lastFingertipPosition) / timeSinceLastLog;
-            float velocityMagnitude = velocity.magnitude;
-            Vector3 movementDirection = velocity.normalized;
-
-            // Get current visibility state
-            bool isVisible = false;
-            if (trial >= FIRST_RECORDED_TRIAL && trial <= TOTAL_TRIALS)
-            {
-                if (trial < SWITCH_HANDS_TRIAL)
-                {
-                    int visIndex = trial - FIRST_RECORDED_TRIAL;
-                    if (visIndex >= 0 && visIndex < randomizedVisibilityList.Count)
-                        isVisible = randomizedVisibilityList[visIndex];
-                }
-                else
-                {
-                    int visIndex = trial - SWITCH_HANDS_TRIAL;
-                    if (visIndex >= 0 && visIndex < flippedVisibilityList.Count)
-                        isVisible = flippedVisibilityList[visIndex];
-                }
-            }
-            else if (trial >= 2 && trial <= 10)
-            {
-                isVisible = trial < 6; // Practice trials visibility logic
-            }
-
-            // Get head and eye data
-            Vector3 headPos = centerEyeAnchor.position;
-            Vector3 leftEyeRot = ConvertToMinus180To180(LeftEyeGaze.transform.rotation.eulerAngles);
-            Vector3 rightEyeRot = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);
-
-            // Calculate time from trial start (approximate)
-            float timeFromTrialStart = Time.time % 60f; // Simple approximation
-
-            // Create detailed trajectory log entry
-            string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string trajectoryLog = $"{time}," +
-                                 $"Trial {trial}," +
-                                 $"{currentMovementPhase}," +
-                                 $"{isVisible}," +
-                                 $"{handedness}," +
-                                 $"FingertipPos({currentFingertipPos.x:F4},{currentFingertipPos.y:F4},{currentFingertipPos.z:F4})," +
-                                 $"TargetPos({targetPos.x:F4},{targetPos.y:F4},{targetPos.z:F4})," +
-                                 $"DistanceToTarget({distanceToTarget:F4})," +
-                                 $"Velocity({velocityMagnitude:F4})," +
-                                 $"HeadPos({headPos.x:F4},{headPos.y:F4},{headPos.z:F4})," +
-                                 $"LeftEyeRot({leftEyeRot.x:F2},{leftEyeRot.y:F2},{leftEyeRot.z:F2})," +
-                                 $"RightEyeRot({rightEyeRot.x:F2},{rightEyeRot.y:F2},{rightEyeRot.z:F2})," +
-                                 $"MovementDirection({movementDirection.x:F3},{movementDirection.y:F3},{movementDirection.z:F3})," +
-                                 $"TimeFromTrialStart({timeFromTrialStart:F3})\n";
-
-            try
-            {
-                File.AppendAllText(fingertipTrajectoryFile, trajectoryLog);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to write trajectory data: {ex.Message}");
-            }
-
-            // Update tracking variables
-            lastTrajectoryLogTime = Time.time;
-            lastFingertipPosition = currentFingertipPos;
+            File.AppendAllText(fingertipTrajectoryFile, trajectoryLog);
         }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to write trajectory data: {ex.Message}");
+        }
+
+        // Update tracking variables
+        lastFingertipPosition = currentFingertipPos;
     }
+
+    // Helper method to get visibility state
+    private bool GetCurrentVisibilityState()
+    {
+        if (trial >= FIRST_RECORDED_TRIAL && trial <= TOTAL_TRIALS)
+        {
+            if (trial < SWITCH_HANDS_TRIAL)
+            {
+                int visIndex = trial - FIRST_RECORDED_TRIAL;
+                if (visIndex >= 0 && visIndex < randomizedVisibilityList.Count)
+                    return randomizedVisibilityList[visIndex];
+            }
+            else
+            {
+                int visIndex = trial - SWITCH_HANDS_TRIAL;
+                if (visIndex >= 0 && visIndex < flippedVisibilityList.Count)
+                    return flippedVisibilityList[visIndex];
+            }
+        }
+        else if (trial >= 2 && trial <= 10)
+        {
+            return trial < 6;
+        }
+        return false;
+    }
+
+
+    //private void LogFingertipTrajectory()
+    //{
+    //    if (!isLoggingTrajectory || currentBall == null)
+    //        return;
+
+    //    // Check if enough time has passed since last log (based on log rate)
+    //    float timeSinceLastLog = Time.time - lastTrajectoryLogTime;
+    //    float logInterval = 1f / trajectoryLogRate; // Convert Hz to seconds
+
+    //    if (timeSinceLastLog >= logInterval)
+    //    {
+    //        Vector3 currentFingertipPos = GetFingertipOrHandPos();
+    //        Vector3 targetPos = currentBall.transform.position;
+
+    //        // Calculate movement metrics
+    //        float distanceToTarget = Vector3.Distance(currentFingertipPos, targetPos);
+    //        Vector3 velocity = (currentFingertipPos - lastFingertipPosition) / timeSinceLastLog;
+    //        float velocityMagnitude = velocity.magnitude;
+    //        Vector3 movementDirection = velocity.normalized;
+
+    //        // Get current visibility state
+    //        bool isVisible = false;
+    //        if (trial >= FIRST_RECORDED_TRIAL && trial <= TOTAL_TRIALS)
+    //        {
+    //            if (trial < SWITCH_HANDS_TRIAL)
+    //            {
+    //                int visIndex = trial - FIRST_RECORDED_TRIAL;
+    //                if (visIndex >= 0 && visIndex < randomizedVisibilityList.Count)
+    //                    isVisible = randomizedVisibilityList[visIndex];
+    //            }
+    //            else
+    //            {
+    //                int visIndex = trial - SWITCH_HANDS_TRIAL;
+    //                if (visIndex >= 0 && visIndex < flippedVisibilityList.Count)
+    //                    isVisible = flippedVisibilityList[visIndex];
+    //            }
+    //        }
+    //        else if (trial >= 2 && trial <= 10)
+    //        {
+    //            isVisible = trial < 6; // Practice trials visibility logic
+    //        }
+
+    //        // Get head and eye data
+    //        Vector3 headPos = centerEyeAnchor.position;
+    //        Vector3 leftEyeRot = ConvertToMinus180To180(LeftEyeGaze.transform.rotation.eulerAngles);
+    //        Vector3 rightEyeRot = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);
+
+    //        // Calculate time from trial start (approximate)
+    //        float timeFromTrialStart = Time.time % 60f; // Simple approximation
+
+    //        // Create detailed trajectory log entry
+    //        string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+    //        string trajectoryLog = $"{time}," +
+    //                             $"Trial {trial}," +
+    //                             $"{currentMovementPhase}," +
+    //                             $"{isVisible}," +
+    //                             $"{handedness}," +
+    //                             $"FingertipPos({currentFingertipPos.x:F4},{currentFingertipPos.y:F4},{currentFingertipPos.z:F4})," +
+    //                             $"TargetPos({targetPos.x:F4},{targetPos.y:F4},{targetPos.z:F4})," +
+    //                             $"DistanceToTarget({distanceToTarget:F4})," +
+    //                             $"Velocity({velocityMagnitude:F4})," +
+    //                             $"HeadPos({headPos.x:F4},{headPos.y:F4},{headPos.z:F4})," +
+    //                             $"LeftEyeRot({leftEyeRot.x:F2},{leftEyeRot.y:F2},{leftEyeRot.z:F2})," +
+    //                             $"RightEyeRot({rightEyeRot.x:F2},{rightEyeRot.y:F2},{rightEyeRot.z:F2})," +
+    //                             $"MovementDirection({movementDirection.x:F3},{movementDirection.y:F3},{movementDirection.z:F3})," +
+    //                             $"TimeFromTrialStart({timeFromTrialStart:F3})\n";
+
+    //        try
+    //        {
+    //            File.AppendAllText(fingertipTrajectoryFile, trajectoryLog);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Debug.LogError($"Failed to write trajectory data: {ex.Message}");
+    //        }
+
+    //        // Update tracking variables
+    //        lastTrajectoryLogTime = Time.time;
+    //        lastFingertipPosition = currentFingertipPos;
+    //    }
+    //}
 
     private void ShowRandomBall()
     {

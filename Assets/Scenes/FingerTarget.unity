@@ -9942,7 +9942,7 @@ MonoBehaviour:
   targetDistanceMultiplier: 1
   targetDistanceOffset: 0
   noseDistance: 0.16
-  trajectoryLogRate: 50
+  trajectoryLogRate: 100
   handedness: 
 --- !u!1 &1840651915
 GameObject:
