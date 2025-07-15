@@ -24452,7 +24452,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1749330142}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fcc4afae47ce2a946ba2c623490c92ea, type: 3}
   m_Name: 
@@ -24942,6 +24942,7 @@ MonoBehaviour:
   RRotationZ: {fileID: 1915883054}
   Sphere: {fileID: 38761496}
   MoveBetweenTwoTransforms: {fileID: 38761499}
+  logRate: 100
   pathleft: 
   pathright: 
   path: 

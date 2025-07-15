@@ -22,6 +22,10 @@ public class DisplayRotation : MonoBehaviour
 
     public MoveBetweenTwoTransforms MoveBetweenTwoTransforms;
 
+    [Header("Logging Settings")]
+    public float logRate = 50f; // Hz
+
+
     // File paths for saving rotation data
     public string pathleft, pathright, path;
     public string headposfile, headrotfile;
@@ -34,6 +38,7 @@ public class DisplayRotation : MonoBehaviour
     // Called when the script instance is being loaded
     void OnEnable()
     {
+        Time.fixedDeltaTime = 1f / logRate;
 
         // Locate the OVRCameraRig
         OVRCameraRig cameraRig = FindObjectOfType<OVRCameraRig>();
@@ -85,18 +90,9 @@ public class DisplayRotation : MonoBehaviour
         Debug.Log($"Right eye tracking: {(RightEyeGaze != null ? RightEyeGaze.EyeTrackingEnabled.ToString() : "null")}");
     }
 
-    // Called once per frame
+
     void Update()
     {
-        Vector3 headsetPosition = Vector3.zero;
-        Quaternion headsetRotation = Quaternion.identity;
-
-        if (centerEyeAnchor != null)
-        {
-            headsetPosition = centerEyeAnchor.position;
-            headsetRotation = centerEyeAnchor.rotation;
-        }
-
         // Toggle recording on button press (Right Controller, Button One)
         // if ((OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch)) && record == 0)
         // {
@@ -124,39 +120,57 @@ public class DisplayRotation : MonoBehaviour
         //{
         //    Debug.LogError("Right eye tracking enabled: " + RightEyeGaze.EyeTrackingEnabled);
         //}
+    }
 
 
+    void FixedUpdate()
+    {
+
+        // Debug logging frequency
+        if (Time.frameCount % 60 == 0)
+        {
+            float actualFPS = 1f / Time.deltaTime;
+            Debug.Log($"Nystagmus - Actual FPS: {actualFPS:F1}, Target log rate: {logRate}Hz");
+        }
+
+        // Log all tracking data at consistent frequency
         if (startMenu.recording) //&& LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
         {
-            // Process and display left eye rotation
-            Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
-            Vector3 leftEyeConverted = ConvertToMinus180To180(leftEyeEuler);
+            LogAllData();
+        }
+    }
 
-            // Process and display right eye rotation
-            Vector3 rightEyeEuler = RightEyeGaze.transform.rotation.eulerAngles;
-            Vector3 rightEyeConverted = ConvertToMinus180To180(rightEyeEuler);
+    private void LogAllData()
+    {
+        Vector3 headsetPosition = Vector3.zero;
+        Quaternion headsetRotation = Quaternion.identity;
 
+        if (centerEyeAnchor != null)
+        {
+            headsetPosition = centerEyeAnchor.position;
+            headsetRotation = centerEyeAnchor.rotation;
+        }
 
-            // Save left and right eye data to file
-            try
-            {
-                string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
+        // Process eye rotation data
+        Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
+        Vector3 leftEyeConverted = ConvertToMinus180To180(leftEyeEuler);
 
-                File.AppendAllText(pathleft, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + leftEyeConverted.x + ", " + leftEyeConverted.y + ", " + leftEyeConverted.z + "\n");
-                File.AppendAllText(pathright, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + rightEyeConverted.x + ", " + rightEyeConverted.y + ", " + rightEyeConverted.z + "\n");
-                File.AppendAllText(headposfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
-                File.AppendAllText(headrotfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
-                
-                Debug.Log("Head position written successfully.");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to write head position: {ex.Message}");
-                // LRotationX.text = "Failed to write head position";
-                // LRotationX.text = $"Failed to write head position: {ex.Message}";
+        Vector3 rightEyeEuler = RightEyeGaze.transform.rotation.eulerAngles;
+        Vector3 rightEyeConverted = ConvertToMinus180To180(rightEyeEuler);
 
-            }
+        try
+        {
+            string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
 
+            // Log all data streams with same timestamp for perfect synchronization
+            File.AppendAllText(pathleft, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + leftEyeConverted.x + ", " + leftEyeConverted.y + ", " + leftEyeConverted.z + "\n");
+            File.AppendAllText(pathright, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + rightEyeConverted.x + ", " + rightEyeConverted.y + ", " + rightEyeConverted.z + "\n");
+            File.AppendAllText(headposfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
+            File.AppendAllText(headrotfile, timestamp + ", " + MoveBetweenTwoTransforms.phase + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to write tracking data: {ex.Message}");
         }
     }
 
