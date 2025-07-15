@@ -2903,6 +2903,7 @@ MonoBehaviour:
   Sphere: {fileID: 1975363723}
   circularUI: {fileID: 524116052}
   rotationSpeed: 12.5
+  logRate: 100
   startMenu: {fileID: 1938946459}
 --- !u!1 &1571699294
 GameObject:
