@@ -14,6 +14,8 @@ public class CameraBackgroundChanger : MonoBehaviour
     private Vector3 headsetPosition = Vector3.zero;
     private Quaternion headsetRotation = Quaternion.identity;
 
+    [Header("Logging Settings")]
+    public float logRate = 50f;
 
     private float timer = 0f;
     private int state = 0; // 0 = solid, 1 = clear, 2 = skybox
@@ -23,6 +25,8 @@ public class CameraBackgroundChanger : MonoBehaviour
 
     void OnEnable()
     {
+        Time.fixedDeltaTime = 1f/ logRate;
+
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = Color.black; // Set to your preferred solid color
         Passthrough.SetActive(false);
@@ -56,12 +60,6 @@ public class CameraBackgroundChanger : MonoBehaviour
 
     void Update()
     {
-        if (centerEyeAnchor != null)
-        {
-            headsetPosition = centerEyeAnchor.position;
-            headsetRotation = centerEyeAnchor.rotation;
-        }
-
         if (!startMenu.running) return; // Only update when startMenu is running
 
         timer += Time.deltaTime;
@@ -92,9 +90,47 @@ public class CameraBackgroundChanger : MonoBehaviour
             smiley.SetActive(false);
             this.enabled = false;
         }
-        if (startMenu.recording)
+    }
+
+    private void FixedUpdate()
+    {
+        if (Time.frameCount % 60 == 0)
         {
-            RecordTrackingData();
+            float actualFPS = 1f / Time.deltaTime;
+            Debug.Log($"HeadStability - Actual FPS: {actualFPS:F1}, Target log rate: {logRate}Hz");
+        }
+
+        if (centerEyeAnchor != null)
+        {
+            headsetPosition = centerEyeAnchor.position;
+            headsetRotation = centerEyeAnchor.rotation;
+        }
+
+        if (startMenu.recording && startMenu.running)
+        {
+            LogAllData();
+        }
+    }
+
+
+    private void LogAllData()
+    {
+        Vector3 leftEyeEuler = ConvertToMinus180To180(LeftEyeGaze.transform.rotation.eulerAngles);
+        Vector3 rightEyeEuler = ConvertToMinus180To180(RightEyeGaze.transform.rotation.eulerAngles);
+
+        string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
+
+        try
+        {
+            // Log all data streams with same timestamp for perfect synchronization
+            File.AppendAllText(pathleft, timestamp + ", " + $"{leftEyeEuler.x}, {leftEyeEuler.y}, {leftEyeEuler.z}, {stateString}\n");
+            File.AppendAllText(pathright, timestamp + ", " + $"{rightEyeEuler.x}, {rightEyeEuler.y}, {rightEyeEuler.z}, {stateString}\n");
+            File.AppendAllText(headposfile, timestamp + ", " + $"{headsetPosition.x}, {headsetPosition.y}, {headsetPosition.z}, {stateString}\n");
+            File.AppendAllText(headrotfile, timestamp + ", " + $"{headsetRotation.eulerAngles.x}, {headsetRotation.eulerAngles.y}, {headsetRotation.eulerAngles.z}, {stateString}\n");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to write tracking data: {ex.Message}");
         }
     }
 

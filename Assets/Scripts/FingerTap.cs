@@ -17,6 +17,10 @@ public class FingerTap : MonoBehaviour
     public TextMeshProUGUI TitleText;
     public TextMeshProUGUI Notice;
 
+
+    [Header("Logging Settings")]
+    public float logRate = 50f;
+
     private OVRHand rightHand;
     private OVRHand leftHand;
 
@@ -36,6 +40,7 @@ public class FingerTap : MonoBehaviour
 
     void OnEnable()
     {
+        Time.fixedDeltaTime = 1f / logRate;
         // Locate and initialize OVRHand
         OVRCameraRig ovrCameraRig = FindObjectOfType<OVRCameraRig>();
         if (ovrCameraRig != null)
@@ -90,14 +95,7 @@ public class FingerTap : MonoBehaviour
 
     void Update()
     {
-        headsetPosition = Vector3.zero;
-        headsetRotation = Quaternion.identity;
-
-        if (centerEyeAnchor != null)
-        {
-            headsetPosition = centerEyeAnchor.position;
-            headsetRotation = centerEyeAnchor.rotation;
-        }
+       
 
         if (leftHand == null || rightHand == null)
             return;
@@ -125,6 +123,46 @@ public class FingerTap : MonoBehaviour
                     HandleFingerTaps(rightHand, "Right");
                 }
             }
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (Time.frameCount % 60 == 0)
+        {
+            float actualFPS = 1f / Time.deltaTime;
+            Debug.Log($"FingerTap - Actual FPS: {actualFPS:F1}, Target log rate: {logRate}Hz");
+        }
+
+        headsetPosition = Vector3.zero;
+        headsetRotation = Quaternion.identity;
+
+        if (centerEyeAnchor != null)
+        {
+            headsetPosition = centerEyeAnchor.position;
+            headsetRotation = centerEyeAnchor.rotation;
+        }
+
+        //Log head data
+        if (startMenu.recording && (phase == "Round1" || phase == "Round2"))
+        {
+            LogHeadData();
+        }
+    }
+
+    private void LogHeadData()
+    {
+        try
+        {
+            string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
+
+            // log headposition and roation
+            File.AppendAllText(headposfile, timestamp + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
+            File.AppendAllText(headrotfile, timestamp + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to write data: {ex.Message}");
         }
     }
 
@@ -192,11 +230,11 @@ public class FingerTap : MonoBehaviour
                         {
                             string fingerName = (phase == "phase 2") ? Enum.GetName(typeof(OVRHand.HandFinger), finger) : $"{handType}-{Enum.GetName(typeof(OVRHand.HandFinger), finger)}";
                             string time = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                            string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
+                            //string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
 
                             File.AppendAllText(FingerTapCounter, $"{time},{fingerName},{counter}{Environment.NewLine}");
-                            File.AppendAllText(headposfile, timestamp + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
-                            File.AppendAllText(headrotfile, timestamp + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
+                            //File.AppendAllText(headposfile, timestamp + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
+                            //File.AppendAllText(headrotfile, timestamp + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
                         }
                         catch (Exception ex)
                         {

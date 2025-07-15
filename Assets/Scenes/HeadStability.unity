@@ -5419,6 +5419,7 @@ MonoBehaviour:
   RightEyeGaze: {fileID: 2129391969}
   startMenu: {fileID: 190585871}
   smiley: {fileID: 1845375987}
+  logRate: 80
   stateString: solid
 --- !u!4 &1585152794
 Transform:

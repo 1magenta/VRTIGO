@@ -12616,6 +12616,7 @@ MonoBehaviour:
   TimerText: {fileID: 812853692}
   TitleText: {fileID: 1568510272}
   Notice: {fileID: 284348192}
+  logRate: 100
   startMenu: {fileID: 1349755406}
 --- !u!1 &1781584922
 GameObject:
