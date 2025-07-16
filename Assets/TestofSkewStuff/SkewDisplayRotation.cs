@@ -14,6 +14,9 @@ public class SkewDisplayRotation : MonoBehaviour
     public GameObject LeftObject1; // object 1
     public GameObject RightObject2; // object 2
 
+    [Header("Logging Settings")]
+    public float logRate = 50f; // Hz - consistent logging frequency
+
     // File paths for saving rotation data
     public string pathleft, pathright, path;
     public string headposfile, headrotfile;
@@ -28,6 +31,8 @@ public class SkewDisplayRotation : MonoBehaviour
 
     void OnEnable()
     {
+        // Set fixed timestep to achieve desired logging rate
+        Time.fixedDeltaTime = 1f / logRate;
 
         if (startMenu.recording)
         {
@@ -42,23 +47,65 @@ public class SkewDisplayRotation : MonoBehaviour
             pathright = Path.Combine(path, "RightEyeRotation.txt");
             headposfile = Path.Combine(path, "HeadPosition.txt");
             headrotfile = Path.Combine(path, "HeadRotation.txt");
-
         }
+
         // Set initial object states and start the cycle
         LeftObject1.SetActive(true);
         RightObject2.SetActive(true);
         if (startMenu.running)
         {
-            StartCoroutine(StartPhase(1f)); // Phase duration is 10 seconds for the initial part
+            StartCoroutine(StartPhase(1f)); // Phase duration is 1 second for the initial part
         }
     }
 
     void Update()
     {
-        // Record eye rotation data if eye tracking is enabled
-        if (startMenu.recording) // && LeftEyeGaze.EyeTrackingEnabled && RightEyeGaze.EyeTrackingEnabled)
+
+    }
+
+    void FixedUpdate()
+    {
+        // Debug logging frequency
+        if (Time.frameCount % 60 == 0)
         {
-            RecordEyeMovement();
+            float actualFPS = 1f / Time.deltaTime;
+            Debug.Log($"SkewTest - Actual FPS: {actualFPS:F1}, Target log rate: {logRate}Hz");
+        }
+
+        // Log all tracking data at consistent frequency
+        if (startMenu.recording) 
+        {
+            LogAllData();
+        }
+    }
+
+    private void LogAllData()
+    {
+        // Process and save left eye data
+        Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
+        Vector3 leftEyeConverted = ConvertToMinus180To180(leftEyeEuler);
+
+        // Process and save right eye data
+        Vector3 rightEyeEuler = RightEyeGaze.transform.rotation.eulerAngles;
+        Vector3 rightEyeConverted = ConvertToMinus180To180(rightEyeEuler);
+
+        // Head movement recording (headset position and rotation)
+        Vector3 headsetPosition = LeftEyeGazeObject.transform.position; // Assuming this is your head position
+        Quaternion headsetRotation = LeftEyeGazeObject.transform.rotation; // Assuming this is your head rotation
+
+        string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
+
+        try
+        {
+            // Log all data streams with same timestamp for perfect synchronization
+            File.AppendAllText(pathleft, timestamp + ", " + $"{leftEyeConverted.x}, {leftEyeConverted.y}, {leftEyeConverted.z}, {activeObject}\n");
+            File.AppendAllText(pathright, timestamp + ", " + $"{rightEyeConverted.x}, {rightEyeConverted.y}, {rightEyeConverted.z}, {activeObject}\n");
+            File.AppendAllText(headposfile, timestamp + ", " + $"{headsetPosition.x}, {headsetPosition.y}, {headsetPosition.z}, {activeObject}\n");
+            File.AppendAllText(headrotfile, timestamp + ", " + $"{headsetRotation.eulerAngles.x}, {headsetRotation.eulerAngles.y}, {headsetRotation.eulerAngles.z}, {activeObject}\n");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to write tracking data: {ex.Message}");
         }
     }
 
@@ -75,43 +122,43 @@ public class SkewDisplayRotation : MonoBehaviour
 
         if (phase == "Both")
         {
-            // Both objects are active for 10 seconds
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
             activeObject = "BothActive"; // Both objects are active
             phase = "LeftActive"; // Transition to LeftActive phase
-            StartCoroutine(StartPhase(5f)); // Wait for 10 seconds with both objects active
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
         }
         else if (phase == "LeftActive")
         {
-            // Left object active, Right object deactivated for 10 seconds
+            // Left object active, Right object deactivated for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(false);
             activeObject = "LeftActive"; // Record active object
             phase = "BothAfterLeft"; // Transition back to Both phase
-            StartCoroutine(StartPhase(5f)); // Wait for 10 seconds with LeftObject1 active
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with LeftObject1 active
         }
         else if (phase == "BothAfterLeft")
         {
-            // Both objects are active for 10 seconds
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
             activeObject = "BothActive"; // Both objects are active
             phase = "RightActive"; // Transition to RightActive phase
-            StartCoroutine(StartPhase(5f)); // Wait for 10 seconds with both objects active
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
         }
         else if (phase == "RightActive")
         {
-            // Right object active, Left object deactivated for 10 seconds
+            // Right object active, Left object deactivated for 5 seconds
             LeftObject1.SetActive(false);
             RightObject2.SetActive(true);
             activeObject = "RightActive"; // Record active object
             phase = "BothAfterRight"; // Transition back to Both phase
-            StartCoroutine(StartPhase(5f)); // Wait for 10 seconds with RightObject2 active
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with RightObject2 active
         }
         else if (phase == "BothAfterRight")
         {
-            // Both objects are active for 10 seconds
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
             activeObject = "BothActive"; // Both objects are active
@@ -124,9 +171,8 @@ public class SkewDisplayRotation : MonoBehaviour
             {
                 phase = "None"; // Transition to None phase (end of cycle) after 1 repeat
             }
-            StartCoroutine(StartPhase(5f)); // Wait for 10 seconds with both objects active
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
         }
-
         else if (phase == "None")
         {
             // Both objects are deactivated (end of cycle)
@@ -134,50 +180,6 @@ public class SkewDisplayRotation : MonoBehaviour
             RightObject2.SetActive(false);
             activeObject = "None"; // Both objects are inactive
             Debug.Log("Cycle completed.");
-        }
-    }
-
-    void RecordEyeMovement()
-    {
-        // Process and save left eye data
-        Vector3 leftEyeEuler = LeftEyeGaze.transform.rotation.eulerAngles;
-        Vector3 leftEyeConverted = ConvertToMinus180To180(leftEyeEuler);
-        string timestamp = System.DateTime.Now.ToString("HH:mm:ss.fff");
-
-        try
-        {
-            File.AppendAllText(pathleft, timestamp + ", " + $"{leftEyeConverted.x}, {leftEyeConverted.y}, {leftEyeConverted.z}, {activeObject}\n");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Failed to write left eye rotation: {ex.Message}");
-        }
-
-        // Process and save right eye data
-        Vector3 rightEyeEuler = RightEyeGaze.transform.rotation.eulerAngles;
-        Vector3 rightEyeConverted = ConvertToMinus180To180(rightEyeEuler);
-
-        try
-        {
-            File.AppendAllText(pathright, timestamp + ", " + $"{rightEyeConverted.x}, {rightEyeConverted.y}, {rightEyeConverted.z}, {activeObject}\n");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Failed to write right eye rotation: {ex.Message}");
-        }
-
-        // Head movement recording (headset position and rotation)
-        Vector3 headsetPosition = LeftEyeGazeObject.transform.position; // Assuming this is your head position
-        Quaternion headsetRotation = LeftEyeGazeObject.transform.rotation; // Assuming this is your head rotation
-
-        try
-        {
-            File.AppendAllText(headposfile, timestamp + ", " + $"{headsetPosition.x}, {headsetPosition.y}, {headsetPosition.z}, {activeObject}\n");
-            File.AppendAllText(headrotfile, timestamp + ", " + $"{headsetRotation.eulerAngles.x}, {headsetRotation.eulerAngles.y}, {headsetRotation.eulerAngles.z}, {activeObject}\n");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Failed to write head position/rotation: {ex.Message}");
         }
     }
 

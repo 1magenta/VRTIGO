@@ -594,6 +594,7 @@ MonoBehaviour:
   LeftEyeGazeObject: {fileID: 372587029}
   LeftObject1: {fileID: 1707213822}
   RightObject2: {fileID: 927274601}
+  logRate: 100
   pathleft: 
   pathright: 
   path: 
