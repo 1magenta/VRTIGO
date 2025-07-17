@@ -15,7 +15,7 @@ public class BucketTest : MonoBehaviour
     public string headposfile, headrotfile, bucketfile, path;
     public GameObject Sphere;
     public GameObject circularUI; // UI element for the test
-    public float rotationSpeed = 50f; // Speed of rotation adjustment
+    public float rotationSpeed = 12.5f; // Speed of rotation adjustment
 
     [Header("Logging Settings")]
     public float logRate = 50f; // Hz - consistent logging frequency
@@ -74,7 +74,6 @@ public class BucketTest : MonoBehaviour
 
     void Update()
     {
-        // Keep joystick input in Update for responsive controls
         if (startMenu.running)
         {
             // Handle joystick input for rotating the circular UI
@@ -121,20 +120,23 @@ public class BucketTest : MonoBehaviour
         float zRotation = circularUI.transform.eulerAngles.z % 360f; // Normalize to 0-360
         if (zRotation < 0) zRotation += 360f; // Handle negative rotations
 
-        // Normalize to 0-90 degrees using modular symmetry
-        float normalizedAngle = zRotation;
-        if (zRotation > 90f && zRotation <= 180f)
-        {
-            normalizedAngle = 180f - zRotation;
-        }
-        else if (zRotation > 180f && zRotation <= 270f)
-        {
-            normalizedAngle = zRotation - 180f;
-        }
-        else if (zRotation > 270f)
-        {
-            normalizedAngle = 360f - zRotation;
-        }
+        //Calculate signed deviation from vertical -90 to +90
+        float signedAngle = CalculateAngle(zRotation);
+
+        //// Normalize to 0-90 degrees using modular symmetry
+        //float normalizedAngle = zRotation;
+        //if (zRotation > 90f && zRotation <= 180f)
+        //{
+        //    normalizedAngle = 180f - zRotation;
+        //}
+        //else if (zRotation > 180f && zRotation <= 270f)
+        //{
+        //    normalizedAngle = zRotation - 180f;
+        //}
+        //else if (zRotation > 270f)
+        //{
+        //    normalizedAngle = 360f - zRotation;
+        //}
 
         try
         {
@@ -143,7 +145,7 @@ public class BucketTest : MonoBehaviour
             // Log all data streams with same timestamp for perfect synchronization
             File.AppendAllText(headposfile, timestamp + ", " + headsetPosition.x + ", " + headsetPosition.y + ", " + headsetPosition.z + "\n");
             File.AppendAllText(headrotfile, timestamp + ", " + headsetRotation.eulerAngles.x + ", " + headsetRotation.eulerAngles.y + ", " + headsetRotation.eulerAngles.z + "\n");
-            File.AppendAllText(bucketfile, timestamp + ", " + normalizedAngle + "\n");
+            File.AppendAllText(bucketfile, timestamp + ", " + signedAngle.ToString("F2") + "\n");
         }
         catch (System.Exception ex)
         {
@@ -166,20 +168,56 @@ public class BucketTest : MonoBehaviour
         float zRotation = circularUI.transform.eulerAngles.z % 360f;
         if (zRotation < 0) zRotation += 360f;
 
-        float normalizedAngle = zRotation;
-        if (zRotation > 90f && zRotation <= 180f)
+        //float normalizedAngle = zRotation;
+        //if (zRotation > 90f && zRotation <= 180f)
+        //{
+        //    normalizedAngle = 180f - zRotation;
+        //}
+        //else if (zRotation > 180f && zRotation <= 270f)
+        //{
+        //    normalizedAngle = zRotation - 180f;
+        //}
+        //else if (zRotation > 270f)
+        //{
+        //    normalizedAngle = 360f - zRotation;
+        //}
+
+        float signedAngle = CalculateAngle(zRotation);
+
+        Angle.text = "Angle Difference: " + signedAngle.ToString("F2") + "°";
+    }
+
+    private float CalculateAngle(float zRotation)
+    {
+        float nearestVertical;
+       
+        if (zRotation <= 90f)
         {
-            normalizedAngle = 180f - zRotation;
+            nearestVertical = 0f;
         }
-        else if (zRotation > 180f && zRotation <= 270f)
+        else if (zRotation <= 270f)
         {
-            normalizedAngle = zRotation - 180f;
+            nearestVertical = 180f;
         }
-        else if (zRotation > 270f)
+        else
         {
-            normalizedAngle = 360f - zRotation;
+            nearestVertical = 360f;
         }
 
-        Angle.text = "Angle Difference: " + normalizedAngle.ToString("F2") + "°";
+        float deviation = zRotation - nearestVertical;
+
+        // handle wrap-around cases
+        if (deviation > 180f)
+        {
+            deviation -= 360f;
+        }
+        else if (deviation < -180)
+        {
+            deviation += 360f;
+        }
+
+        deviation = Mathf.Clamp(deviation, -90f, 90f);
+
+        return deviation;
     }
 }
