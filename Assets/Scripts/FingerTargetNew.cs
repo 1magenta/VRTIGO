@@ -55,6 +55,7 @@ public class FingerTargetNew : MonoBehaviour
     public float hitDetectionRadius = 0.1f; // Distance required to "hit" the target
     [Range(0.8f, 1.0f)]
     public float minimumExtensionRatio = 0.9f;
+    public float dataCollectionDelay = 2f;
 
     [Header("Target Distance Settings")]
     [Range(0.9f, 1.0f)]
@@ -336,7 +337,7 @@ public class FingerTargetNew : MonoBehaviour
                 trialText.GetComponent<TextMeshProUGUI>().text = "Trial 2";
                 phase = Phase.Reach;
                 waitingForCubeAfterCalibration = false;
-                instructionText.text = "Touch the center of the ball with the tip of your finger";
+                instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position breifly";
                 ShowRandomBall();
             }
             return; // Stop running trials while waiting
@@ -525,7 +526,7 @@ public class FingerTargetNew : MonoBehaviour
             {
                 currentMovementPhase = "TargetHit";
                 evaluating = true;
-                StartCoroutine(EvaluateReachAfterDelay(0.01f));
+                StartCoroutine(EvaluateReachAfterDelay(dataCollectionDelay));
             }
         }
         else if (phase == Phase.Reset)
@@ -555,8 +556,22 @@ public class FingerTargetNew : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// use for unrecorded trails (1 ~ 10)
+    /// </summary>
+    /// <param name="delay"></param>
+    /// <returns></returns>
     private System.Collections.IEnumerator EvaluateReachAfterDelay(float delay)
     {
+        if (currentBall != null)
+        {
+            Renderer ballRenderer = currentBall.GetComponent<Renderer>();
+            if (ballRenderer != null)
+            {
+                ballRenderer.material.color = Color.yellow; // Visual feedback
+            }
+        }
+
         yield return new WaitForSeconds(delay);
 
         Vector3 finalHandPos = GetFingertipOrHandPos();
@@ -578,7 +593,7 @@ public class FingerTargetNew : MonoBehaviour
 
         if (phase == Phase.Reach)
         {
-            instructionText.text = "Touch the center of the ball with the tip of your finger";
+            instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position breifly";
             currentMovementPhase = "Reaching";
             //isLoggingTrajectory = true;
 
@@ -614,7 +629,7 @@ public class FingerTargetNew : MonoBehaviour
             {
                 currentMovementPhase = "TargetHit";
                 evaluating = true;
-                StartCoroutine(EvaluateAndLogReachAfterDelay(0.01f));
+                StartCoroutine(EvaluateAndLogReachAfterDelay(dataCollectionDelay));
             }
         }
         else if (phase == Phase.Reset)
@@ -642,6 +657,8 @@ public class FingerTargetNew : MonoBehaviour
                         activeIndexTip = rightIndexTipJoint; // Update fingertip joint reference
                         fabLeft.SetActive(false);
                         fabRight.SetActive(true);
+
+                        //instructionText.text = "SWITCH HAND - Use the other hand for the remaining trials";
                     }
                     else
                     {
@@ -651,11 +668,13 @@ public class FingerTargetNew : MonoBehaviour
                         activeIndexTip = leftIndexTipJoint; // Update fingertip joint reference
                         fabRight.SetActive(false);
                         fabLeft.SetActive(true);
+
+                        //instructionText.text = "SWITCH HAND - Use the other hand for the remaining trials";
                     }
 
                     skeleton = activeHand.GetComponent<OVRSkeleton>();
                     instructionText.text = "Now using the opposite hand!";
-                    trialText.GetComponent<TextMeshProUGUI>().text = $"Trial {SWITCH_HANDS_TRIAL}";
+                    trialText.GetComponent<TextMeshProUGUI>().text = $"Switch to the other hand, Trial {SWITCH_HANDS_TRIAL}";
 
                     // Generate new visibility list for second hand
                     int reachesPerArm = TOTAL_TRIALS - SWITCH_HANDS_TRIAL + 1;
@@ -702,8 +721,23 @@ public class FingerTargetNew : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// use for recorded trails after 10
+    /// </summary>
+    /// <param name="delay"></param>
+    /// <returns></returns>
     private IEnumerator EvaluateAndLogReachAfterDelay(float delay)
     {
+        if (currentBall != null)
+        {
+            Renderer ballRenderer = currentBall.GetComponent<Renderer>();
+            if (ballRenderer != null)
+            {
+                ballRenderer.material.color = Color.yellow; // Visual feedback
+            }
+        }
+
         yield return new WaitForSeconds(delay);
 
         Vector3 finalHandPos = GetFingertipOrHandPos();
