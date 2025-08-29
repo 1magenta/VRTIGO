@@ -55,7 +55,7 @@ public class FingerTargetNew : MonoBehaviour
     public float hitDetectionRadius = 0.1f; // Distance required to "hit" the target
     [Range(0.8f, 1.0f)]
     public float minimumExtensionRatio = 0.9f;
-    public float dataCollectionDelay = 2f;
+    public float dataCollectionDelay = 2.5f;
 
     [Header("Target Distance Settings")]
     [Range(0.9f, 1.0f)]
@@ -337,7 +337,7 @@ public class FingerTargetNew : MonoBehaviour
                 trialText.GetComponent<TextMeshProUGUI>().text = "Trial 2";
                 phase = Phase.Reach;
                 waitingForCubeAfterCalibration = false;
-                instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position breifly";
+                instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position briefly";
                 ShowRandomBall();
             }
             return; // Stop running trials while waiting
@@ -593,7 +593,7 @@ public class FingerTargetNew : MonoBehaviour
 
         if (phase == Phase.Reach)
         {
-            instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position breifly";
+            instructionText.text = "Touch the center of the ball with the tip of your finger and hold your position briefly";
             currentMovementPhase = "Reaching";
             //isLoggingTrajectory = true;
 

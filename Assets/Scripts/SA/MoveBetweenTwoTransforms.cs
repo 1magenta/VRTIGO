@@ -20,9 +20,11 @@ public class MoveBetweenTwoTransforms : MonoBehaviour
     public int counter = 0; // To count the number of completed movements
     public string phase;
 
-    public StartSystem startMenu;
+    //public StartSystem startMenu;
 
     private bool isMoving = false; // Prevents multiple calls to movement logic
+    private bool autoStartEnabled = true;
+
 
     void OnEnable()
     {
@@ -33,8 +35,14 @@ public class MoveBetweenTwoTransforms : MonoBehaviour
         }
 
         Sphere.transform.position = pointA.position;
-        StartCoroutine(InitialWaitSequence());
+        //StartCoroutine(InitialWaitSequence());
+        if (autoStartEnabled)
+        {
+            StartCoroutine(InitialWaitSequence());
+        }
     }
+
+
 
     IEnumerator InitialWaitSequence()
     {
@@ -102,12 +110,25 @@ public class MoveBetweenTwoTransforms : MonoBehaviour
         };
     }
 
+    //bool CheckEndCondition()
+    //{
+    //    if (startMenu.recording && counter > 2 || !startMenu.recording && counter == 1)
+    //    {
+    //        Sphere.transform.position = pointA.position;
+    //        counter = 0;
+    //        this.enabled = false;
+    //        return true;
+    //    }
+    //    return false;
+    //}
+
     bool CheckEndCondition()
     {
-        if (startMenu.recording && counter > 2 || !startMenu.recording && counter == 1)
+        // Simplified end condition for standalone
+        if (counter > 2)
         {
             Sphere.transform.position = pointA.position;
-            counter = 0;
+            //counter = 0;
             this.enabled = false;
             return true;
         }
