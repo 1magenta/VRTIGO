@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.IO;
 using System;
+using System.Collections;
 
 public class NystagmusDisplayRot : MonoBehaviour
 {
@@ -22,9 +23,12 @@ public class NystagmusDisplayRot : MonoBehaviour
 
     public MoveBetweenTwoTransforms MoveBetweenTwoTransforms;
 
-    [Header("Logging Settings")]
+    [Header("Settings")]
     public float logRate = 50f; // Hz
 
+    public float startDelay = 1.5f;
+    public float shrinkDuration = 1.5f;
+    public float finalTargetScale = 0.3f;
 
     // File paths for saving rotation data
     public string pathleft, pathright, path;
@@ -36,6 +40,9 @@ public class NystagmusDisplayRot : MonoBehaviour
     //public StartSystem startMenu;
 
     private bool autoStartEnabled = true;
+
+    private Vector3 originalSphereScale;
+    private bool testStarted = false;
 
     // Called when the script instance is being loaded
     void OnEnable()
@@ -60,47 +67,18 @@ public class NystagmusDisplayRot : MonoBehaviour
             InitializeStandaloneLogging();
         }
 
-        if (autoStartEnabled && MoveBetweenTwoTransforms != null)
+        //store original scale
+        if (Sphere != null)
         {
-            MoveBetweenTwoTransforms.enabled = true;
+            originalSphereScale = Sphere.transform.localScale;
         }
 
-        //// Initialize file paths only once
-        //if (startMenu.recording)
-        //{
-        //    // Use Application.persistentDataPath to ensure cross-platform compatibility
-        //    path = Path.Combine(Application.persistentDataPath, "TestOfNystagmus");
-        //    path = Path.Combine(path, StartSystem.playerName);
-        //    path = Path.Combine(path, System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
+        if (autoStartEnabled)
+        {
+            StartCoroutine(IntroSequence());
+        }
 
 
-        //    // Create directory for storing data
-        //    try
-        //    {
-        //        Directory.CreateDirectory(path);
-        //        Debug.Log($"Directory created: {path}");
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        Debug.LogError($"Failed to create directory: {ex.Message}");
-        //    }
-
-        //    pathleft = Path.Combine(path, "LeftEyeRotation.txt");
-        //    pathright = Path.Combine(path, "RightEyeRotation.txt");
-        //    headposfile = Path.Combine(path, "HeadPosition.txt");
-        //    headrotfile = Path.Combine(path, "HeadRotation.txt");
-
-        //}
-
-        //if (startMenu.running)
-        //{
-        //    MoveBetweenTwoTransforms.enabled = true;
-        //}
-
-        //// Log initial status
-        //Debug.Log($"Recording enabled: {startMenu.recording}");
-        //Debug.Log($"Left eye tracking: {(LeftEyeGaze != null ? LeftEyeGaze.EyeTrackingEnabled.ToString() : "null")}");
-        //Debug.Log($"Right eye tracking: {(RightEyeGaze != null ? RightEyeGaze.EyeTrackingEnabled.ToString() : "null")}");
     }
 
     void InitializeStandaloneLogging()
@@ -113,37 +91,50 @@ public class NystagmusDisplayRot : MonoBehaviour
         headrotfile = Path.Combine(path, "HeadRotation.txt");
     }
 
-    void Update()
+    IEnumerator IntroSequence()
     {
-        // Toggle recording on button press (Right Controller, Button One)
-        // if ((OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch)) && record == 0)
-        // {
-        //     record = 1;
-        //     //Sphere.gameObject.GetComponent<Renderer>().material.color = Color.green; // Change sphere color to green
-        //     MoveBetweenTwoTransforms.enabled = true; // Enable movement script
-        // }
+        if (MoveBetweenTwoTransforms != null)
+        {
+            MoveBetweenTwoTransforms.enabled = false;
+        }
 
-        // // Stop recording on button press (Right Controller, Button Two)
-        // if ((OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch)) && record == 1)
-        // {
-        //     record = 0;
-        //     //Sphere.gameObject.GetComponent<Renderer>().material.color = Color.red; // Change sphere color to red
-        //     MoveBetweenTwoTransforms.enabled = false; // disable movement script
-        // }
+        yield return new WaitForSeconds(startDelay);
 
-        // Record eye rotation data if recording is active and eye tracking is enabled
+        if (Sphere != null)
+        {
+            yield return StartCoroutine(ShrinkTarget());
+        }
 
-        //if (!LeftEyeGaze.EyeTrackingEnabled)
-        //{
-        //    Debug.LogError("Left eye tracking enabled: " + LeftEyeGaze.EyeTrackingEnabled);
-        //}
+        //yield return new WaitForSeconds(1f);
 
-        //if (!RightEyeGaze.EyeTrackingEnabled)
-        //{
-        //    Debug.LogError("Right eye tracking enabled: " + RightEyeGaze.EyeTrackingEnabled);
-        //}
+        if (MoveBetweenTwoTransforms != null)
+        {
+            MoveBetweenTwoTransforms.enabled = true;
+        }
     }
 
+    IEnumerator ShrinkTarget()
+    {
+        if (Sphere == null) yield break;
+
+        Vector3 startScale = originalSphereScale;
+        Vector3 targetScale = originalSphereScale * finalTargetScale;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < shrinkDuration)
+        {
+            float progress = elapsedTime / shrinkDuration;
+            // Use smooth curve for more natural scaling
+            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            Sphere.transform.localScale = Vector3.Lerp(startScale, targetScale, smoothProgress);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+
+            Sphere.transform.localScale = targetScale;
+        }
+    }
 
     void FixedUpdate()
     {

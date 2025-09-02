@@ -18248,12 +18248,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "This is the START SCENE & END SCENE of the experience. Notify the researcher
-    if you see this screen again after finishing the tests. \n\nThere will be 3 tests
-    including Headstability Test, Test of Nystagmus and Test of Skew. Please look
-    at the target object during tests.\n\nIn front of you, there should be 2 green
-    spheres following your eye ball movement, DON'T START if you cannot see them.
-    \n\nIf you are ready, PRESS ANY BUTTON ON YOUR RIGHT CONTROLLER TO START"
+  m_text: "This is the start scene of the experience. There will be 3 tests including
+    Headstability Test, Test of Nystagmus and Test of Skew. Please look at the target
+    object during tests. When all 3 tasks are completed and you can see nothing for
+    a while, please notify the researcher. \n\nIn front of you, there should be 2
+    green spheres following your eye ball movement, DON'T START if you cannot see
+    them. \n\nIf you are ready, PRESS ANY BUTTON ON YOUR RIGHT CONTROLLER TO START"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

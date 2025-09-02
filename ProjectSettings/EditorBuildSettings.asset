@@ -5,43 +5,43 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/StartMenu.unity
     guid: e18c8ddc0067543eface3a63d038bf11
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/HeadStability.unity
     guid: cc6cfed9b30f24253aedd6197c17809b
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/TestofNystagmus.unity
     guid: a911aede3d4c04fdc8e9813115c8b8c5
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/FingerTapping.unity
     guid: bd47083f2df97497ca12a1575be41b07
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/BucketTestV2.unity
     guid: 8260ad8ea3eed49c5aa415c15d7c4ac0
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/TestofSkew.unity
     guid: 2418ab9ac8b5c4696a63114fced13b65
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/FingerTarget.unity
     guid: 525eb15eb61ce446ca21113d7a99cd00
   - enabled: 0
     path: Assets/Scenes/test.unity
     guid: 6d6c05baa6fa0c6498da884adb3338b9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SA_Scene/SA_Start.unity
     guid: 6d87851630481234bb8ea4fd5c37e71d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SA_Scene/SA_Nystagmus.unity
     guid: aa5e1ecd73aa423469048e57a4c8036a
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SA_Scene/SA_TestofSkew.unity
     guid: a58e41012f46392479d4211a0909c0be
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SA_Scene/SA_HeadStability.unity
     guid: 1ce670819c223544c83f81b35a44f253
   m_configObjects:

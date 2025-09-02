@@ -81,7 +81,7 @@ public class DisplayRotation : MonoBehaviour
 
         if (startMenu.running)
         {
-            MoveBetweenTwoTransforms.enabled = true; 
+            MoveBetweenTwoTransforms.enabled = true;
         }
 
         // Log initial status
