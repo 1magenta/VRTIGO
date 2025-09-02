@@ -105,20 +105,7 @@ public class NystagmusDisplayRot : MonoBehaviour
 
     void InitializeStandaloneLogging()
     {
-        // Create simplified file structure
-        path = Path.Combine(Application.persistentDataPath, "StandaloneEyeTracking");
-        path = Path.Combine(path, "TestOfNystagmus");
-        path = Path.Combine(path, System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
-
-        try
-        {
-            Directory.CreateDirectory(path);
-            Debug.Log($"Directory created: {path}");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"Failed to create directory: {ex.Message}");
-        }
+        path = GlobalTestManager.GetTestDataPath("TestOfNystagmus");
 
         pathleft = Path.Combine(path, "LeftEyeRotation.txt");
         pathright = Path.Combine(path, "RightEyeRotation.txt");

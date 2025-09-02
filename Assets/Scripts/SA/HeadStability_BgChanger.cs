@@ -67,16 +67,14 @@ public class HeadStability_BgChanger : MonoBehaviour
 
     void InitializeStandaloneLogging()
     {
-        // Create simplified file structure
-        path = Path.Combine(Application.persistentDataPath, "StandaloneEyeTracking");
-        path = Path.Combine(path, "HeadStability");
-        path = Path.Combine(path, System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
-        Directory.CreateDirectory(path);
+        path = GlobalTestManager.GetTestDataPath("HeadStability");
 
         pathleft = Path.Combine(path, "LeftEyeRotation.txt");
         pathright = Path.Combine(path, "RightEyeRotation.txt");
         headposfile = Path.Combine(path, "HeadPosition.txt");
         headrotfile = Path.Combine(path, "HeadRotation.txt");
+
+        Debug.Log($"HeadStability data path: {path}");
     }
 
     void Update()

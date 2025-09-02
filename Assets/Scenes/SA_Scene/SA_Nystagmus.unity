@@ -24339,8 +24339,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcbb00405c364bf4bb2e208c9067e72b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LeftEyeGaze: {fileID: 0}
-  RightEyeGaze: {fileID: 0}
+  LeftEyeGaze: {fileID: 850721495}
+  RightEyeGaze: {fileID: 1799400634}
   LRotationX: {fileID: 1820368970}
   LRotationY: {fileID: 284348192}
   LRotationZ: {fileID: 854834778}

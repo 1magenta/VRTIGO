@@ -104,14 +104,15 @@ public class HeadStabilityTaskManager : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-        // Load next scene
-        if (!string.IsNullOrEmpty(nextSceneName))
-        {
-            SceneManager.LoadScene(nextSceneName);
-        }
-        else
-        {
-            Debug.Log("All tests completed!");
-        }
+        //// Load next scene
+        //if (!string.IsNullOrEmpty(nextSceneName))
+        //{
+        //    SceneManager.LoadScene(nextSceneName);
+        //}
+        //else
+        //{
+        //    Debug.Log("All tests completed!");
+        //}
+        GlobalTestManager.Instance.CompleteCurrentTest();
     }
 }

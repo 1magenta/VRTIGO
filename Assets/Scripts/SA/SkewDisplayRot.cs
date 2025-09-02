@@ -29,10 +29,6 @@ public class SkewDisplayRot : MonoBehaviour
     //public StartSystem startMenu;
     public int counter = 0;
 
-    [Header("Camera References")]
-    public Camera leftEyeCamera;
-    public Camera rightEyeCamera;
-
     private bool autoStartEnabled = true;
 
     void OnEnable()
@@ -40,11 +36,7 @@ public class SkewDisplayRot : MonoBehaviour
         // Set fixed timestep to achieve desired logging rate
         Time.fixedDeltaTime = 1f / logRate;
 
-        if (leftEyeCamera != null && rightEyeCamera != null)
-        {
-            leftEyeCamera.enabled = true;
-            rightEyeCamera.enabled = true;
-        }
+        
 
         if (autoStartEnabled)
         {
@@ -82,17 +74,14 @@ public class SkewDisplayRot : MonoBehaviour
 
     void InitializeStandaloneLogging()
     {
-        // Create simplified file structure
-        path = Path.Combine(Application.persistentDataPath, "StandaloneEyeTracking");
-        path = Path.Combine(path, "TestOfSkew");
-        path = Path.Combine(path, System.DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
+        path = GlobalTestManager.GetTestDataPath("TestOfSkew");
 
-        // Create directory for storing data
-        Directory.CreateDirectory(path);
         pathleft = Path.Combine(path, "LeftEyeRotation.txt");
         pathright = Path.Combine(path, "RightEyeRotation.txt");
         headposfile = Path.Combine(path, "HeadPosition.txt");
         headrotfile = Path.Combine(path, "HeadRotation.txt");
+
+        Debug.Log($"TestOfSkew data path: {path}");
     }
 
     void Update()
@@ -151,174 +140,84 @@ public class SkewDisplayRot : MonoBehaviour
         }
     }
 
-    //IEnumerator StartPhase(float duration)
-    //{
-    //    phaseEndTime = Time.time + duration;
-
-    //    while (Time.time < phaseEndTime)
-    //    {
-    //        yield return null; // Wait until the phase duration has elapsed
-    //    }
-
-    //    Debug.Log(phase);
-
-    //    if (phase == "Both")
-    //    {
-    //        // Both objects are active for 5 seconds
-    //        LeftObject1.SetActive(true);
-    //        RightObject2.SetActive(true);
-    //        activeObject = "BothActive"; // Both objects are active
-    //        phase = "LeftActive"; // Transition to LeftActive phase
-    //        StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
-    //    }
-    //    else if (phase == "LeftActive")
-    //    {
-    //        // Left object active, Right object deactivated for 5 seconds
-    //        LeftObject1.SetActive(true);
-    //        RightObject2.SetActive(false);
-    //        activeObject = "LeftActive"; // Record active object
-    //        phase = "BothAfterLeft"; // Transition back to Both phase
-    //        StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with LeftObject1 active
-    //    }
-    //    else if (phase == "BothAfterLeft")
-    //    {
-    //        // Both objects are active for 5 seconds
-    //        LeftObject1.SetActive(true);
-    //        RightObject2.SetActive(true);
-    //        activeObject = "BothActive"; // Both objects are active
-    //        phase = "RightActive"; // Transition to RightActive phase
-    //        StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
-    //    }
-    //    else if (phase == "RightActive")
-    //    {
-    //        // Right object active, Left object deactivated for 5 seconds
-    //        LeftObject1.SetActive(false);
-    //        RightObject2.SetActive(true);
-    //        activeObject = "RightActive"; // Record active object
-    //        phase = "BothAfterRight"; // Transition back to Both phase
-    //        StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with RightObject2 active
-    //    }
-    //    else if (phase == "BothAfterRight")
-    //    {
-    //        // Both objects are active for 5 seconds
-    //        LeftObject1.SetActive(true);
-    //        RightObject2.SetActive(true);
-    //        activeObject = "BothActive"; // Both objects are active
-    //        if (counter == 0)
-    //        {
-    //            phase = "LeftActive";
-    //            counter = 1;
-    //        }
-    //        else
-    //        {
-    //            phase = "None"; // Transition to None phase (end of cycle) after 1 repeat
-    //        }
-    //        StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
-    //    }
-    //    else if (phase == "None")
-    //    {
-    //        // Both objects are deactivated (end of cycle)
-    //        LeftObject1.SetActive(false);
-    //        RightObject2.SetActive(false);
-    //        activeObject = "None"; // Both objects are inactive
-    //        Debug.Log("Cycle completed.");
-    //    }
-    //}
-
-    // Converts a Vector3 of Euler angles to the range [-180, 180]
-
     IEnumerator StartPhase(float duration)
     {
         phaseEndTime = Time.time + duration;
 
         while (Time.time < phaseEndTime)
         {
-            yield return null;
+            yield return null; // Wait until the phase duration has elapsed
         }
 
         Debug.Log(phase);
 
         if (phase == "Both")
         {
-            // Both objects visible - both cameras enabled
-            SetCameraState(true, true);
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
-            activeObject = "BothActive";
-            phase = "LeftActive";
-            StartCoroutine(StartPhase(5f));
+            activeObject = "BothActive"; // Both objects are active
+            phase = "LeftActive"; // Transition to LeftActive phase
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
         }
         else if (phase == "LeftActive")
         {
-            // Left object only - disable right camera
-            SetCameraState(true, false);
+            // Left object active, Right object deactivated for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(false);
-            activeObject = "LeftActive";
-            phase = "BothAfterLeft";
-            StartCoroutine(StartPhase(5f));
+            activeObject = "LeftActive"; // Record active object
+            phase = "BothAfterLeft"; // Transition back to Both phase
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with LeftObject1 active
         }
         else if (phase == "BothAfterLeft")
         {
-            // Both objects visible - both cameras enabled
-            SetCameraState(true, true);
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
-            activeObject = "BothActive";
-            phase = "RightActive";
-            StartCoroutine(StartPhase(5f));
+            activeObject = "BothActive"; // Both objects are active
+            phase = "RightActive"; // Transition to RightActive phase
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
         }
         else if (phase == "RightActive")
         {
-            // Right object only - disable left camera
-            SetCameraState(false, true);
+            // Right object active, Left object deactivated for 5 seconds
             LeftObject1.SetActive(false);
             RightObject2.SetActive(true);
-            activeObject = "RightActive";
-            phase = "BothAfterRight";
-            StartCoroutine(StartPhase(5f));
+            activeObject = "RightActive"; // Record active object
+            phase = "BothAfterRight"; // Transition back to Both phase
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with RightObject2 active
         }
         else if (phase == "BothAfterRight")
         {
-            // Both objects visible - both cameras enabled
-            SetCameraState(true, true);
+            // Both objects are active for 5 seconds
             LeftObject1.SetActive(true);
             RightObject2.SetActive(true);
-            activeObject = "BothActive";
+            activeObject = "BothActive"; // Both objects are active
             if (counter == 0)
             {
                 phase = "LeftActive";
                 counter = 1;
-                StartCoroutine(StartPhase(5f));
             }
             else
             {
-                phase = "TestComplete";
-                StartCoroutine(ShowCompletionIndicator());
+                phase = "None"; // Transition to None phase (end of cycle) after 1 repeat
             }
+            StartCoroutine(StartPhase(5f)); // Wait for 5 seconds with both objects active
+        }
+        else if (phase == "None")
+        {
+            // Both objects are deactivated (end of cycle)
+            LeftObject1.SetActive(false);
+            RightObject2.SetActive(false);
+            activeObject = "None"; // Both objects are inactive
+            Debug.Log("Cycle completed.");
         }
     }
 
-    // Helper method to control camera states
-    void SetCameraState(bool leftEnabled, bool rightEnabled)
-    {
-        if (leftEyeCamera != null)
-        {
-            leftEyeCamera.enabled = leftEnabled;
-        }
-
-        if (rightEyeCamera != null)
-        {
-            rightEyeCamera.enabled = rightEnabled;
-        }
-
-        Debug.Log($"Camera states - Left: {leftEnabled}, Right: {rightEnabled}");
-    }
-
+     //Converts a Vector3 of Euler angles to the range [-180, 180]
     IEnumerator ShowCompletionIndicator()
     {
-        // Re-enable both cameras for completion display
-        SetCameraState(true, true);
+        
 
         // Show visual completion indicator
         LeftObject1.SetActive(false);
